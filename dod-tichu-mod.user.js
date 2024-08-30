@@ -145,7 +145,7 @@ function findCurrentPlayedCards() {
     for (let i = 0; i < playedCardsArea.children.length; i++) {
         let cardEl = playedCardsArea.children[i];
         let cardname = cardEl.getAttribute("card");
-
+        if(cardname[0] === "P") cardname = "P!";
         if (!rmFromUnkCards(cardname)) {
             playedCards.push(cardname);
         }
