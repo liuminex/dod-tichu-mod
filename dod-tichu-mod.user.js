@@ -3,7 +3,7 @@
 // @version      0.2
 // @description  Tichu Mod Script for counting game cards
 // @author       Jason-Manos
-// @match        https://dod.gr/*
+// @match        https://www.dod.gr/*
 // @grant        none
 // @run-at       document-end
 // ==/UserScript==
