@@ -1,10 +1,9 @@
 // ==UserScript==
 // @name         Tichu Mod
-// @namespace    https://dod.gr/
 // @version      0.2
 // @description  Tichu Mod Script for counting game cards
 // @author       Jason-Manos
-// @match        *://*/*
+// @match        https://dod.gr/*
 // @grant        none
 // @run-at       document-end
 // ==/UserScript==
