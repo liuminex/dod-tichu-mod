@@ -25,8 +25,8 @@ function createModBox() {
         <h3 style='width: calc(100% - 4px); text-align:center; padding: 0 2px;'>Tichu Mod Box <button id='closeModMenuBtn'>close</button></h3>
         <hr style='margin: 0 2px;'>
             <div style='padding: 10px; font-size: 0.7em; border: solid 2px green; box-sizing: border-box; margin-bottom: 2px;'>
-                <input id='tmateCardsInput' type='text' placeholder='TMate Cards'>
-                <button onclick='readTMateCards()'>OK</button>
+                <input id='tmateCardsInput' type='text' placeholder='Teammate Cards'>
+                <button id='readTMateCardsBtn'>OK</button>
             </div>
             <div style='padding: 10px; font-size: 0.7em; border: solid 2px red; box-sizing: border-box; margin-bottom: 2px;'>
                 <button id='openTichuBtn'>Open Tichu</button>
@@ -44,6 +44,7 @@ function createModBox() {
     document.getElementById("resetAllBtn").onclick = resetAll;
     document.getElementById("copyMyCardsBtn").onclick = copyMyCards;
     document.getElementById("readMyCardsBtn").onclick = findMyCurrentCards;
+    document.getElementById("readTMateCardsBtn").onclick = readTMateCards;
 }
 
 function closeModMenu() { document.getElementById("modBox").style.display = "none"; }
