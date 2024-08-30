@@ -1,3 +1,15 @@
+// ==UserScript==
+// @name         Tichu Mod
+// @namespace    https://dod.gr/
+// @version      0.2
+// @description  Tichu Mod Script for counting game cards
+// @author       Jason-Manos
+// @match        *://*/*
+// @grant        none
+// @run-at       document-end
+// ==/UserScript==
+
+
 let myCards = [], tmateCards = [], opp1Cards = [], opp2Cards = [], playedCards = [], unknownCards = [];
 
 function createModBox() {
@@ -11,21 +23,21 @@ function createModBox() {
     modBox.id = "modBox";
     modBox.style.cssText = "position: fixed; top: 0; left: 0; width: 400px; height: 100vh; background-color: #121212; z-index: 9999; font-size: 20px; overflow-y: auto; color: #cdcdcd; padding: 2px; box-sizing: border-box;";
     modBox.innerHTML = `
-    <h3 style='width: calc(100% - 4px); text-align:center; padding: 0 2px;'>Tichu Mod Box <button id='closeModMenuBtn'>close</button></h3>
-    <hr style='margin: 0 2px;'>
-        <div style='padding: 10px; font-size: 0.7em; border: solid 2px green; box-sizing: border-box; margin-bottom: 2px;'>
-            <input id='tmateCardsInput' type='text' placeholder='TMate Cards'>
-            <button onclick='readTMateCards()'>OK</button>
-        </div>
-        <div style='padding: 10px; font-size: 0.7em; border: solid 2px red; box-sizing: border-box; margin-bottom: 2px;'>
-            <button id='openTichuBtn'>Open Tichu</button>
-            <button id='resetAllBtn'>Reset</button>
-            <button id='copyMyCardsBtn'>Copy My Cards</button>
-            <button id='readMyCardsBtn'>Read My Cards</button>
-        </div>
-        <div id='cardsArea' style='padding: 10px; font-size: 0.7em; overflow-y: auto; border: solid 2px yellow; box-sizing: border-box; margin-bottom: 2px;'></div>
-        <div id='modBoxLog' style='padding: 10px; font-size: 0.7em; height: 200px; overflow-y: auto; border: solid 2px cyan; box-sizing: border-box;'></div>
-    `;
+        <h3 style='width: calc(100% - 4px); text-align:center; padding: 0 2px;'>Tichu Mod Box <button id='closeModMenuBtn'>close</button></h3>
+        <hr style='margin: 0 2px;'>
+            <div style='padding: 10px; font-size: 0.7em; border: solid 2px green; box-sizing: border-box; margin-bottom: 2px;'>
+                <input id='tmateCardsInput' type='text' placeholder='TMate Cards'>
+                <button onclick='readTMateCards()'>OK</button>
+            </div>
+            <div style='padding: 10px; font-size: 0.7em; border: solid 2px red; box-sizing: border-box; margin-bottom: 2px;'>
+                <button id='openTichuBtn'>Open Tichu</button>
+                <button id='resetAllBtn'>Reset</button>
+                <button id='copyMyCardsBtn'>Copy My Cards</button>
+                <button id='readMyCardsBtn'>Read My Cards</button>
+            </div>
+            <div id='cardsArea' style='padding: 10px; font-size: 0.7em; overflow-y: auto; border: solid 2px yellow; box-sizing: border-box; margin-bottom: 2px;'></div>
+            <div id='modBoxLog' style='padding: 10px; font-size: 0.7em; height: 200px; overflow-y: auto; border: solid 2px cyan; box-sizing: border-box;'></div>
+        `;
     document.body.appendChild(modBox);
 
     document.getElementById("closeModMenuBtn").onclick = closeModMenu;
@@ -34,8 +46,6 @@ function createModBox() {
     document.getElementById("copyMyCardsBtn").onclick = copyMyCards;
     document.getElementById("readMyCardsBtn").onclick = findMyCurrentCards;
 }
-
-
 
 function closeModMenu() { document.getElementById("modBox").style.display = "none"; }
 function openModMenu() { document.getElementById("modBox").style.display = "block"; }
@@ -50,51 +60,50 @@ function readTMateCards() {
     displayCurrentCards();
 }
 
-function findGamesButton(){
+function findGamesButton() {
     return document.getElementById("component_bottom_middle_main_games");
 }
-function findCloseGamesButton(){
+function findCloseGamesButton() {
     return document.querySelector("#topBarCloseButton");
 }
-function findTichuButton(){
+function findTichuButton() {
     return document.evaluate("/html/body/div/div/div[7]/div[2]/div[2]/div/div/div/div[2]/div[2]/div[5]", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
 }
-function findEkkinhshButton(){
+function findEkkinhshButton() {
     return document.getElementById("go_startstop");
 }
-function findModBox(){
+function findModBox() {
     return document.getElementById("modBox");
 }
-function findModBoxLog(){
+function findModBoxLog() {
     return document.getElementById("modBoxLog");
 }
-function findCardsArea(){
+function findCardsArea() {
     return document.getElementById("cardsArea");
 }
-function findMyTeamScore(){
+function findMyTeamScore() {
     return document.getElementById("txtMyTeamScore");
 }
-function findOpTeamScore(){
+function findOpTeamScore() {
     return document.getElementById("txtOpTeamScore");
 }
-function findGoFeed(){
+function findGoFeed() {
     return document.querySelector("#go_feed > span.dodlangspan");
-
 }
 
-function findMyCurrentCards(){
+function findMyCurrentCards() {
     const myCardsArea = document.getElementById("hand");
 
-    if(!myCardsArea){
+    if (!myCardsArea) {
         log("my cards area not found");
         return "";
     }
 
-    for(let i = 0; i < myCardsArea.children.length; i++){
+    for (let i = 0; i < myCardsArea.children.length; i++) {
         let cardEl = myCardsArea.children[i];
         let cardname = cardEl.getAttribute("card");
 
-        if(!rmFromUnkCards(cardname)){
+        if (!rmFromUnkCards(cardname)) {
             myCards.push(cardname);
         }
     }
@@ -121,30 +130,29 @@ function rmFromTmateCards(cardname) {
     return 0;
 }
 
-function findPlayedCardsArea(){
+function findPlayedCardsArea() {
     return document.getElementById("cardsHolder");
 }
 
-function findCurrentPlayedCards(){
-    //*[@id="cardsHolder"]
+function findCurrentPlayedCards() {
     const playedCardsArea = findPlayedCardsArea();
 
-    if(!playedCardsArea){
+    if (!playedCardsArea) {
         log("played cards area not found");
         return "";
     }
 
-    for(let i = 0; i < playedCardsArea.children.length; i++){
+    for (let i = 0; i < playedCardsArea.children.length; i++) {
         let cardEl = playedCardsArea.children[i];
         let cardname = cardEl.getAttribute("card");
 
-        if(!rmFromUnkCards(cardname)){
+        if (!rmFromUnkCards(cardname)) {
             playedCards.push(cardname);
         }
-        if(!rmFromMyCards(cardname)){
+        if (!rmFromMyCards(cardname)) {
             playedCards.push(cardname);
         }
-        if(!rmFromTmateCards(cardname)){
+        if (!rmFromTmateCards(cardname)) {
             playedCards.push(cardname);
         }
     }
@@ -152,12 +160,12 @@ function findCurrentPlayedCards(){
     displayCurrentCards();
 }
 
-function log(str){
+function log(str) {
     findModBoxLog().innerHTML += "<p class='logtry'>" + str + "</p>";
 
     // scroll into view
     let logtry = document.getElementsByClassName("logtry");
-    logtry[logtry.length-1].scrollIntoView();
+    logtry[logtry.length - 1].scrollIntoView();
 }
 
 function resetAll() {
@@ -233,11 +241,11 @@ function styleCards(cards, grid = false) {
 function displayCurrentCards() {
     const ca = findCardsArea();
     ca.innerHTML = `
-        <p><span>Me (${myCards.length}): </span><span>${styleCards(myCards, false)}</span></p>
-        <p><span>Teammate (${tmateCards.length}): </span><span>${styleCards(tmateCards, false)}</span></p>
-        <p><span>Played (${playedCards.length}): </span><span>${styleCards(playedCards, false)}</span></p>
-        <p><span>Unknown (${unknownCards.length}): </span><span>${styleCards(unknownCards, true)}</span></p>
-    `;
+            <p><span>Me (${myCards.length}): </span><span>${styleCards(myCards, false)}</span></p>
+            <p><span>Teammate (${tmateCards.length}): </span><span>${styleCards(tmateCards, false)}</span></p>
+            <p><span>Played (${playedCards.length}): </span><span>${styleCards(playedCards, false)}</span></p>
+            <p><span>Unknown (${unknownCards.length}): </span><span>${styleCards(unknownCards, true)}</span></p>
+        `;
     if (playedCards.length + myCards.length + tmateCards.length + opp1Cards.length + opp2Cards.length + unknownCards.length !== 56) {
         log("ERROR: cards count is not 56");
     }
