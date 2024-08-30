@@ -14,28 +14,59 @@ let myCards = [], tmateCards = [], opp1Cards = [], opp2Cards = [], playedCards =
 function createModBox() {
     const menuBtn = document.createElement("button");
     menuBtn.innerHTML = "Open Tichu Mod Menu";
-    menuBtn.style.cssText = "position: fixed; top: 0; left: 0; z-index: 9998; background-color: #121212; color: #cdcdcd; border: none; padding: 10px; font-size: 20px;";
+    menuBtn.style.cssText = "position: fixed; top: 0; left: 0; z-index: 9998; background-color: #121212; color: #f5f5f5; border: none; padding: 10px; font-size: 20px;";
     menuBtn.onclick = openModMenu;
     document.body.appendChild(menuBtn);
 
     const modBox = document.createElement("div");
     modBox.id = "modBox";
-    modBox.style.cssText = "position: fixed; top: 0; left: 0; width: 400px; height: 100vh; background-color: #121212; z-index: 9999; font-size: 20px; overflow-y: auto; color: #cdcdcd; padding: 2px; box-sizing: border-box;";
+    modBox.style.cssText = "position: fixed; top: 0; left: 0; width: 400px; height: 100vh; background-color: rgba(35,37,46,0.8); z-index: 9999; font-size: 15px; overflow-y: auto; font-weight: bold; box-sizing: border-box;";
     modBox.innerHTML = `
-        <h3 style='width: calc(100% - 4px); text-align:center; padding: 0 2px;'>Tichu Mod Box <button id='closeModMenuBtn'>close</button></h3>
-        <hr style='margin: 0 2px;'>
-            <div style='padding: 10px; font-size: 0.7em; border: solid 2px green; box-sizing: border-box; margin-bottom: 2px;'>
-                <input id='tmateCardsInput' type='text' placeholder='Teammate Cards'>
-                <button id='readTMateCardsBtn'>OK</button>
+        <div style='height: 30px; font-weight: bold; font-size: 17px; color: #dc0303; text-align:center; padding: 2px;'>Tichu Mod Box <button id='closeModMenuBtn'
+        style='border: solid 1px black; padding: 3px; margin: 2px; background: rgb(13,43,85); background: linear-gradient(180deg, rgba(13,43,85,1) 0%, rgba(26,81,161,1) 35%, rgba(39,123,245,1) 100%); font-weight: bold; color: #f5f5f5; cursor: pointer;'
+        >close</button></div>
+
+        <hr style='margin: 0 2px; color: #dc0303;'>
+
+        <div style='padding: 5px;'>
+            <button id='mod-tab-0' style='height: 25px; padding: 5px; margin: 0px; background: rgb(13,43,85); background: linear-gradient(180deg, rgba(13,43,85,1) 0%, rgba(26,81,161,1) 35%, rgba(39,123,245,1) 100%); font-weight: bold; color: #f5f5f5; cursor: pointer;'>START</button>
+            <button id='mod-tab-1' style='height: 25px; padding: 5px; margin: 0px; background: rgb(13,43,85); background: linear-gradient(180deg, rgba(13,43,85,1) 0%, rgba(26,81,161,1) 35%, rgba(39,123,245,1) 100%); font-weight: bold; color: #f5f5f5; cursor: pointer;'>PLAYED</button>
+            <button id='mod-tab-2' style='height: 25px; padding: 5px; margin: 0px; background: rgb(13,43,85); background: linear-gradient(180deg, rgba(13,43,85,1) 0%, rgba(26,81,161,1) 35%, rgba(39,123,245,1) 100%); font-weight: bold; color: #f5f5f5; cursor: pointer;'>TMATE</button>
+            <button id='mod-tab-3' style='height: 25px; padding: 5px; margin: 0px; background: rgb(13,43,85); background: linear-gradient(180deg, rgba(13,43,85,1) 0%, rgba(26,81,161,1) 35%, rgba(39,123,245,1) 100%); font-weight: bold; color: #f5f5f5; cursor: pointer;'>LOG</button>
+            <button id='mod-tab-4' style='height: 25px; padding: 5px; margin: 0px; background: rgb(13,43,85); background: linear-gradient(180deg, rgba(13,43,85,1) 0%, rgba(26,81,161,1) 35%, rgba(39,123,245,1) 100%); font-weight: bold; color: #f5f5f5; cursor: pointer;'>EXTRA</button>
+        </div>
+
+        <hr style='margin: 0 2px; color: #dc0303;'>
+
+        <div style='padding: 5px;'> <!-- tabs contents -->
+
+            <div id='tab-0-start' style='max-height: calc(100vh - 70px); overflow-y: auto;'>
+                <button id='openTichuBtn' style='border: solid 1px black; padding: 3px; margin: 2px; background: rgb(13,43,85); background: linear-gradient(180deg, rgba(13,43,85,1) 0%, rgba(26,81,161,1) 35%, rgba(39,123,245,1) 100%); font-weight: bold; color: #f5f5f5; cursor: pointer;'>Open Tichu</button>
             </div>
-            <div style='padding: 10px; font-size: 0.7em; border: solid 2px red; box-sizing: border-box; margin-bottom: 2px;'>
-                <button id='openTichuBtn'>Open Tichu</button>
-                <button id='resetAllBtn'>Reset</button>
-                <button id='copyMyCardsBtn'>Copy My Cards</button>
-                <button id='readMyCardsBtn'>Read My Cards</button>
+
+            <div id='cardsArea' style='max-height: calc(100vh - 70px); font-size: 0.7em; overflow-y: auto;'></div>
+
+            <div id='tmatetab' style='max-height: calc(100vh - 70px); overflow-y: auto;'>
+                <div id='tmatecardsinput'>
+                    <input id='tmateCardsInput' type='text' placeholder='Teammate Cards'>
+                    <button id='readTMateCardsBtn'>OK</button>
+                </div>
+                <div id='copymycards'>
+                    <button id='copyMyCardsBtn' style='border: solid 1px black; padding: 3px; margin: 2px; background: rgb(13,43,85); background: linear-gradient(180deg, rgba(13,43,85,1) 0%, rgba(26,81,161,1) 35%, rgba(39,123,245,1) 100%); font-weight: bold; color: #f5f5f5; cursor: pointer;'>Copy My Cards</button>
+                </div>
             </div>
-            <div id='cardsArea' style='padding: 10px; font-size: 0.7em; overflow-y: auto; border: solid 2px yellow; box-sizing: border-box; margin-bottom: 2px;'></div>
-            <div id='modBoxLog' style='padding: 10px; font-size: 0.7em; height: 200px; overflow-y: auto; border: solid 2px cyan; box-sizing: border-box;'></div>
+
+            <div id='mod-extras' style='max-height: calc(100vh - 70px); overflow-y: auto;'>
+                manual actions (optional):
+                <br>
+                <br>
+                <button id='resetAllBtn' style='border: solid 1px black; padding: 3px; margin: 2px; background: rgb(13,43,85); background: linear-gradient(180deg, rgba(13,43,85,1) 0%, rgba(26,81,161,1) 35%, rgba(39,123,245,1) 100%); font-weight: bold; color: #f5f5f5; cursor: pointer;'>Reset</button>
+                <button id='readMyCardsBtn' style='border: solid 1px black; padding: 3px; margin: 2px; background: rgb(13,43,85); background: linear-gradient(180deg, rgba(13,43,85,1) 0%, rgba(26,81,161,1) 35%, rgba(39,123,245,1) 100%); font-weight: bold; color: #f5f5f5; cursor: pointer;'>Read My Cards</button>
+            </div>
+
+            <div id='modBoxLog' style='max-height: calc(100vh - 70px); overflow-y: auto;'></div>
+
+        </div>
         `;
     document.body.appendChild(modBox);
 
@@ -45,6 +76,39 @@ function createModBox() {
     document.getElementById("copyMyCardsBtn").onclick = copyMyCards;
     document.getElementById("readMyCardsBtn").onclick = findMyCurrentCards;
     document.getElementById("readTMateCardsBtn").onclick = readTMateCards;
+
+    document.getElementById("mod-tab-0").onclick = function(){ openTab(0); };
+    document.getElementById("mod-tab-1").onclick = function(){ openTab(1); };
+    document.getElementById("mod-tab-2").onclick = function(){ openTab(2); };
+    document.getElementById("mod-tab-3").onclick = function(){ openTab(3); };
+    document.getElementById("mod-tab-4").onclick = function(){ openTab(4); };
+}
+
+function hideAllTabs(){
+    document.getElementById("tab-0-start").style.display = "none";
+    document.getElementById("cardsArea").style.display = "none";
+    document.getElementById("tmatetab").style.display = "none";
+    document.getElementById("modBoxLog").style.display = "none";
+    document.getElementById("mod-extras").style.display = "none";
+}
+
+function openTab(tab) {
+    hideAllTabs();
+    if(tab == 0){
+        document.getElementById("tab-0-start").style.display = "block";
+    }
+    else if(tab == 1){
+        document.getElementById("cardsArea").style.display = "block";
+    }
+    else if(tab == 2){
+        document.getElementById("tmatetab").style.display = "block";
+    }
+    else if(tab == 3){
+        document.getElementById("modBoxLog").style.display = "block";
+    }
+    else if(tab == 4){
+        document.getElementById("mod-extras").style.display = "block";
+    }
 }
 
 function closeModMenu() { document.getElementById("modBox").style.display = "none"; }
@@ -58,6 +122,7 @@ function readTMateCards() {
     const cards = document.getElementById("tmateCardsInput").value.trim().split(" ");
     cards.forEach(card => { if (!rmFromUnkCards(card)) tmateCards.push(card); });
     displayCurrentCards();
+    openTab(1);
 }
 
 function findGamesButton() {
@@ -178,6 +243,7 @@ function resetAll() {
         "5d", "5c", "5h", "5s", "4d", "4c", "4h", "4s", "3d", "3c", "3h", "3s", "2d", "2c", "2h", "2s", "Dogs", "P!", "Mahjong"
     ];
     displayCurrentCards();
+    addPlayedCardsAreaListener();
 }
 
 function callMouseDown(el){
@@ -249,6 +315,20 @@ function displayCurrentCards() {
     if (playedCards.length + myCards.length + tmateCards.length + opp1Cards.length + opp2Cards.length + unknownCards.length !== 56) {
         log("ERROR: cards count is not 56");
     }
+}
+
+function addPlayedCardsAreaListener(){
+    // add event listener to detect every time a card is played
+    // wait until cards area exists, then add event listener
+    let cardsAreaInterval = setInterval(function(){
+        if(findPlayedCardsArea()){
+            findPlayedCardsArea().addEventListener("DOMNodeInserted", function(){
+                //log('card played');
+                findCurrentPlayedCards();
+            });
+            clearInterval(cardsAreaInterval);
+        }
+    }, 1000);
 }
 
 
@@ -331,16 +411,5 @@ setInterval(function(){
 
 /* ====================== in game ====================== */
 
+openTab(0);
 resetAll();
-
-// add event listener to detect every time a card is played
-// wait until cards area exists, then add event listener
-let cardsAreaInterval = setInterval(function(){
-    if(findPlayedCardsArea()){
-        findPlayedCardsArea().addEventListener("DOMNodeInserted", function(){
-            log('card played');
-            findCurrentPlayedCards();
-        });
-        clearInterval(cardsAreaInterval);
-    }
-}, 1000);
