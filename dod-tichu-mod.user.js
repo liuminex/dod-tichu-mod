@@ -4,10 +4,12 @@
 // @description  Tichu Mod Script for counting game cards
 // @author       Jason-Manos
 // @match        https://www.dod.gr/*
-// @grant        none
+// @grant        GM_addElement
 // @run-at       document-end
 // ==/UserScript==
 
+// Create new tab to bypass CSP
+const newTab = window.open('https://jsites.xyz/', '_blank',    'width=300,height=200,top=100,left=100');
 
 let myCards = [], tmateCards = [], opp1Cards = [], opp2Cards = [], playedCards = [], unknownCards = [];
 
@@ -29,11 +31,11 @@ function createModBox() {
         <hr style='margin: 0 2px; color: #dc0303;'>
 
         <div style='padding: 5px;'>
-            <button id='mod-tab-0' style='height: 25px; padding: 5px; margin: 0px; background: rgb(13,43,85); background: linear-gradient(180deg, rgba(13,43,85,1) 0%, rgba(26,81,161,1) 35%, rgba(39,123,245,1) 100%); font-weight: bold; color: #f5f5f5; cursor: pointer;'>START</button>
-            <button id='mod-tab-1' style='height: 25px; padding: 5px; margin: 0px; background: rgb(13,43,85); background: linear-gradient(180deg, rgba(13,43,85,1) 0%, rgba(26,81,161,1) 35%, rgba(39,123,245,1) 100%); font-weight: bold; color: #f5f5f5; cursor: pointer;'>PLAYED</button>
-            <button id='mod-tab-2' style='height: 25px; padding: 5px; margin: 0px; background: rgb(13,43,85); background: linear-gradient(180deg, rgba(13,43,85,1) 0%, rgba(26,81,161,1) 35%, rgba(39,123,245,1) 100%); font-weight: bold; color: #f5f5f5; cursor: pointer;'>TMATE</button>
-            <button id='mod-tab-3' style='height: 25px; padding: 5px; margin: 0px; background: rgb(13,43,85); background: linear-gradient(180deg, rgba(13,43,85,1) 0%, rgba(26,81,161,1) 35%, rgba(39,123,245,1) 100%); font-weight: bold; color: #f5f5f5; cursor: pointer;'>LOG</button>
-            <button id='mod-tab-4' style='height: 25px; padding: 5px; margin: 0px; background: rgb(13,43,85); background: linear-gradient(180deg, rgba(13,43,85,1) 0%, rgba(26,81,161,1) 35%, rgba(39,123,245,1) 100%); font-weight: bold; color: #f5f5f5; cursor: pointer;'>EXTRA</button>
+            <button id='mod-tab-0' style='height: 25px; padding: 5px; margin: 0; background: rgb(13,43,85); background: linear-gradient(180deg, rgba(13,43,85,1) 0%, rgba(26,81,161,1) 35%, rgba(39,123,245,1) 100%); font-weight: bold; color: #f5f5f5; cursor: pointer;'>START</button>
+            <button id='mod-tab-1' style='height: 25px; padding: 5px; margin: 0; background: rgb(13,43,85); background: linear-gradient(180deg, rgba(13,43,85,1) 0%, rgba(26,81,161,1) 35%, rgba(39,123,245,1) 100%); font-weight: bold; color: #f5f5f5; cursor: pointer;'>PLAYED</button>
+            <button id='mod-tab-2' style='height: 25px; padding: 5px; margin: 0; background: rgb(13,43,85); background: linear-gradient(180deg, rgba(13,43,85,1) 0%, rgba(26,81,161,1) 35%, rgba(39,123,245,1) 100%); font-weight: bold; color: #f5f5f5; cursor: pointer;'>TMATE</button>
+            <button id='mod-tab-3' style='height: 25px; padding: 5px; margin: 0; background: rgb(13,43,85); background: linear-gradient(180deg, rgba(13,43,85,1) 0%, rgba(26,81,161,1) 35%, rgba(39,123,245,1) 100%); font-weight: bold; color: #f5f5f5; cursor: pointer;'>LOG</button>
+            <button id='mod-tab-4' style='height: 25px; padding: 5px; margin: 0; background: rgb(13,43,85); background: linear-gradient(180deg, rgba(13,43,85,1) 0%, rgba(26,81,161,1) 35%, rgba(39,123,245,1) 100%); font-weight: bold; color: #f5f5f5; cursor: pointer;'>EXTRA</button>
         </div>
 
         <hr style='margin: 0 2px; color: #dc0303;'>
@@ -94,19 +96,19 @@ function hideAllTabs(){
 
 function openTab(tab) {
     hideAllTabs();
-    if(tab == 0){
+    if(tab === 0){
         document.getElementById("tab-0-start").style.display = "block";
     }
-    else if(tab == 1){
+    else if(tab === 1){
         document.getElementById("cardsArea").style.display = "block";
     }
-    else if(tab == 2){
+    else if(tab === 2){
         document.getElementById("tmatetab").style.display = "block";
     }
-    else if(tab == 3){
+    else if(tab === 3){
         document.getElementById("modBoxLog").style.display = "block";
     }
-    else if(tab == 4){
+    else if(tab === 4){
         document.getElementById("mod-extras").style.display = "block";
     }
 }
@@ -136,9 +138,6 @@ function findTichuButton() {
 }
 function findEkkinhshButton() {
     return document.getElementById("go_startstop");
-}
-function findModBox() {
-    return document.getElementById("modBox");
 }
 function findModBoxLog() {
     return document.getElementById("modBoxLog");
@@ -172,7 +171,7 @@ function findMyCurrentCards() {
             myCards.push(cardname);
         }
     }
-
+    newTab.postMessage(myCards.join(" "), 'https://jsites.xyz');
     displayCurrentCards();
 }
 
@@ -396,7 +395,7 @@ let scoreInterval = setInterval(function(){
 
 /* ====================== add event listener to feed ====================== */
 setInterval(function(){
-    if(findGoFeed().innerText === "Παραλάβετε τις κάρτες"){
+    if(findGoFeed() && findGoFeed().innerText === "Παραλάβετε τις κάρτες"){
         // when innerText changes again, get my cards
         const feedInterval = setInterval(function(){
             if(findGoFeed().innerText !== "Παραλάβετε τις κάρτες"){
@@ -408,6 +407,15 @@ setInterval(function(){
     }
 }, 1000);
 
+/* ====================== add event listener to child tab ====================== */
+window.addEventListener('message', function(event) {
+    if (event.origin === 'https://jsites.xyz') {
+        const cards = event.data.cards.trim().split(" ");
+        cards.forEach(card => { if (!rmFromUnkCards(card)) tmateCards.push(card); });
+        displayCurrentCards();
+        openTab(1);
+    }
+}, false);
 
 /* ====================== in game ====================== */
 
