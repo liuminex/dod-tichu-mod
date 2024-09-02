@@ -4,12 +4,11 @@
 // @description  Tichu Mod Script for counting game cards
 // @author       Jason-Manos
 // @match        https://www.dod.gr/*
-// @grant        GM_addElement
 // @run-at       document-end
 // ==/UserScript==
 
 // Create new tab to bypass CSP
-const newTab = window.open('https://jsites.xyz/', '_blank',    'width=300,height=200,top=100,left=100');
+let newTab = window.open('https://manos2400.github.io/card-exchange/', '_blank', 'width=300,height=200,top=100,left=100');
 
 let myCards = [], tmateCards = [], opp1Cards = [], opp2Cards = [], playedCards = [], unknownCards = [];
 
@@ -171,7 +170,7 @@ function findMyCurrentCards() {
             myCards.push(cardname);
         }
     }
-    newTab.postMessage(myCards.join(" "), 'https://jsites.xyz');
+    newTab.postMessage(myCards.join(" "), 'https://manos2400.github.io');
     displayCurrentCards();
 }
 
@@ -409,8 +408,8 @@ setInterval(function(){
 
 /* ====================== add event listener to child tab ====================== */
 window.addEventListener('message', function(event) {
-    if (event.origin === 'https://jsites.xyz') {
-        const cards = event.data.cards.trim().split(" ");
+    if (event.origin === 'https://manos2400.github.io') {
+        const cards = event.data.trim().split(" ");
         cards.forEach(card => { if (!rmFromUnkCards(card)) tmateCards.push(card); });
         displayCurrentCards();
         openTab(1);
