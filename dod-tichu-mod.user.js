@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Tichu Mod
-// @version      0.3
+// @version      0.2
 // @description  Tichu Mod Script for counting game cards
 // @author       Jason-Manos
 // @match        https://www.dod.gr/*
@@ -53,7 +53,7 @@ function createModBox() {
 
             <div id='mod-extras' style='max-height: calc(100vh - 70px); overflow-y: auto;'>
                 <p>manual actions (optional)</p>
-                
+
                 <hr>
 
                 <button id='resetAllBtn' style='border: solid 1px black; padding: 3px; margin: 2px; background: rgb(13,43,85); background: linear-gradient(180deg, rgba(13,43,85,1) 0%, rgba(26,81,161,1) 35%, rgba(39,123,245,1) 100%); font-weight: bold; color: #f5f5f5; cursor: pointer;'>Reset</button>
