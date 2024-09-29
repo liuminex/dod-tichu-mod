@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Tichu Mod
-// @version      0.4
+// @version      0.5
 // @description  Tichu Mod Script for counting game cards
 // @author       Jason-Manos
 // @match        https://www.dod.gr/*
@@ -349,6 +349,7 @@ function openTichu(){
 
     // wait until tichu button exists, then open tichu and close games
     let tichuButtonInterval = setInterval(function(){
+        log("interval: tichu button");
         if(findTichuButton()){
             callMouseDown(findTichuButton());
             log('opened tichu');
@@ -393,6 +394,7 @@ function addListeners(){
 function addPlayedCardsAreaListener(){
     if(listener_pca) return;
     let cardsAreaInterval = setInterval(function(){
+        log("interval: played cards area");
         if(findPlayedCardsArea()){
             findPlayedCardsArea().addEventListener("DOMNodeInserted", function(){
                 findCurrentPlayedCards();
@@ -408,6 +410,7 @@ function addEkkinhshButtonListener(){
     if(listener_ekk) return;
 
     let ekkinhshButtonInterval = setInterval(function(){
+        log("interval: ekkinhsh button");
         if(findEkkinhshButton()){
             log('ekkinhsh button found');
             findEkkinhshButton().addEventListener("click", function(){
@@ -422,9 +425,9 @@ function addEkkinhshButtonListener(){
 }
 
 // DETECT WHEN SCORE CHANGES - new game detection
-function addNewGameListener(){
-    if(listener_ng) return;
+/*function addNewGameListener(){
     let scoreInterval = setInterval(function(){
+        log("interval: score text");
         if(findMyTeamScore() && findOpTeamScore()){
             log('score text found');
             // when myTeamScore + OpTeamScore changes, reset all
@@ -432,6 +435,7 @@ function addNewGameListener(){
             let opTeamScore = findOpTeamScore().innerText;
             clearInterval(scoreInterval);
             setInterval(function(){
+                log('interval: score changed'); // THIS ------------------------------------------------------------------------
                 if(findMyTeamScore().innerText !== myTeamScore || findOpTeamScore().innerText !== opTeamScore){
                     log('score changed');
                     myTeamScore = findMyTeamScore().innerText;
@@ -439,20 +443,40 @@ function addNewGameListener(){
                     resetAll();
                 }
             }, 1000);
-            listener_ng = true;
             log('+ ekkinhsh button listener added');
             clearInterval(scoreInterval);
+        }
+    }, 1000);
+}*/
+function addNewGameListener(){
+    if(listener_ng) return;
+    let intve54h6 = setInterval(function(){
+        log("interval: new game");
+        if(findMyTeamScore() && findOpTeamScore()){
+            findMyTeamScore().addEventListener("DOMNodeInserted", function(){
+                log('new game detected (1)');
+                resetAll();
+            });
+            findOpTeamScore().addEventListener("DOMNodeInserted", function(){
+                log('new game detected (2)');
+                resetAll();
+            });
+            listener_ng = true;
+            log('+ new game listener added');
+            clearInterval(intve54h6);
         }
     }, 1000);
 }
 
 // DETECT WHEN WE RECIEVE CARDS
-function addFeedListener(){
+/*function addFeedListener(){
     if(listener_f) return;
     let intv398g764 = setInterval(function(){
+        log("interval: feed text"); // THIS ------------------------------------------------------------------------
         if(findGoFeed() && findGoFeed().innerText === "Παραλάβετε τις κάρτες"){
             // when innerText changes again, get my cards
             const feedInterval = setInterval(function(){
+                log('interval: feed text changed');
                 if(findGoFeed().innerText !== "Παραλάβετε τις κάρτες"){
                     log('reading cards');
                     findMyCurrentCards();
@@ -463,6 +487,35 @@ function addFeedListener(){
             listener_f = true;
             log('+ feed listener added');
             clearInterval(intv398g764);
+        }
+    }, 1000);
+}*/
+
+function findParalaveteKartesButton() {
+    return document.getElementById("btnReceive");
+}
+function addFeedListener(){
+    if(listener_f) return;
+
+    let intv9384hbg = setInterval(function(){
+        log("interval: paralavi button");
+        if(findParalaveteKartesButton()){
+            log('paralavi button found');
+            findParalaveteKartesButton().onclick = function(){
+
+                log('paralavi button clicked');
+
+                setTimeout(function(){
+
+                    findMyCurrentCards();
+                    resetScores();
+
+                }, 500);
+                
+            };
+            listener_f = true;
+            log('+ paralavete kartes listener added');
+            clearInterval(intv9384hbg);
         }
     }, 1000);
 }
@@ -486,6 +539,7 @@ function addChildTabListener(){
 function addBonusLayerListener(){
     if(listener_bl) return;
     let intv34f287g = setInterval(function(){
+        log("interval: bonus layer");
         if(findBonusLayer()){
             findBonusLayer().addEventListener("DOMNodeInserted", function(){
                 score = findBonusLayer().innerText;
@@ -510,6 +564,7 @@ function addBonusLayerListener(){
 function addLastPlayerListener(){
     if(listener_lpl) return;
     let intvg495h84g = setInterval(function(){
+        log("interval: last player layer");
         if(findLastPlayer()){
             findLastPlayer().addEventListener("DOMNodeInserted", function(){
 
