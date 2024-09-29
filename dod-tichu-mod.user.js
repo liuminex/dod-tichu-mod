@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Tichu Mod
-// @version      0.6.1
+// @version      0.6.2
 // @description  Tichu Mod Script for counting game cards
 // @author       Jason-Manos
 // @match        https://www.dod.gr/*
@@ -351,7 +351,7 @@ function openTichu(){
 
             openTab(1);
             openCardExchangeTab();
-            addListeners();
+            addAllListeners();
             resetAll();
             resetListeners();
 
@@ -366,14 +366,16 @@ function openTichu(){
 /* ====================== LISTENERS ====================== */
 
 // keep track of listeners to avoid duplicates
-var listener_pca = false;
-var listener_ng = false;
-var listener_f = false;
-var listener_cht = false;
-var listener_bl = false;
-var listener_lpl = false;
+let listeners = {
+    playedCardsArea: false,
+    newGame: false,
+    feed: false,
+    childTab: false,
+    bonusLayer: false,
+    lastPlayer: false
+};
 
-function addListeners(){
+function addAllListeners(){
     addPlayedCardsAreaListener();
     addNewGameListener();
     addFeedListener();
@@ -383,32 +385,30 @@ function addListeners(){
 }
 
 function resetListeners(){
-    if(listener_pca) findPlayedCardsArea().removeEventListener("DOMNodeInserted", function(){});
-    if(listener_f) findGoFeed().removeEventListener("DOMNodeInserted", function(){});
-    if(listener_cht) window.removeEventListener('message', function(){});
-    if(listener_bl) findBonusLayer().removeEventListener("DOMNodeInserted", function(){});
-    if(listener_lpl) findLastPlayer().removeEventListener("DOMNodeInserted", function(){});
+    if(listeners.playedCardsArea) findPlayedCardsArea().removeEventListener("DOMNodeInserted", function(){});
+    if(listeners.feed) findGoFeed().removeEventListener("DOMNodeInserted", function(){});
+    if(listeners.bonusLayer) findBonusLayer().removeEventListener("DOMNodeInserted", function(){});
+    if(listeners.lastPlayer) findLastPlayer().removeEventListener("DOMNodeInserted", function(){});
 
     // remove currents
-    listener_pca = false;
-    listener_f = false;
-    listener_cht = false;
-    listener_bl = false;
-    listener_lpl = false;
+    listeners.playedCardsArea = false;
+    listeners.feed = false;
+    listeners.bonusLayer = false;
+    listeners.lastPlayer = false;
 
-    addListeners();
+    addPlayedCardsAreaListener(); addFeedListener(); addBonusLayerListener(); addLastPlayerListener();
 }
 
 // DETECT WHEN NEW CARDS ARE PLAYED
 function addPlayedCardsAreaListener(){
-    if(listener_pca) return;
+    if(listeners.playedCardsArea) return;
     let cardsAreaInterval = setInterval(function(){
         log("interval: played cards area");
         if(findPlayedCardsArea()){
             findPlayedCardsArea().addEventListener("DOMNodeInserted", function(){
                 findCurrentPlayedCards();
             });
-            listener_pca = true;
+            listeners.playedCardsArea = true;
             log('+ played cards listener added');
             clearInterval(cardsAreaInterval);
         }
@@ -416,7 +416,7 @@ function addPlayedCardsAreaListener(){
 }
 
 function addNewGameListener(){
-    if(listener_ng) return;
+    if(listeners.newGame) return;
     let intve54h6 = setInterval(function(){
         log("interval: new game");
         if(findMyTeamScore() && findOpTeamScore()){
@@ -430,7 +430,7 @@ function addNewGameListener(){
                 resetAll();
                 resetListeners();
             });
-            listener_ng = true;
+            listeners.newGame = true;
             log('+ new game listener added');
             clearInterval(intve54h6);
         }
@@ -443,7 +443,7 @@ function findParalaveteKartesButton() {
     return document.getElementById("btnReceive");
 }
 function addFeedListener(){
-    if(listener_f) return;
+    if(listeners.feed) return;
 
     let intv9384hbg = setInterval(function(){
         log("interval: paralavi button");
@@ -461,7 +461,7 @@ function addFeedListener(){
                 }, 500);
                 
             };
-            listener_f = true;
+            listeners.feed = true;
             log('+ paralavete kartes listener added');
             clearInterval(intv9384hbg);
         }
@@ -470,7 +470,7 @@ function addFeedListener(){
 
 // DETECT WHEN TEAMMATE SENDS CARDS
 function addChildTabListener(){
-    if(listener_cht) return;
+    if(listeners.childTab) return;
     window.addEventListener('message', function(event) {
         if (event.origin === 'https://manos2400.github.io') {
             const cards = event.data.trim().split(" ");
@@ -479,13 +479,13 @@ function addChildTabListener(){
             openTab(1);
         }
     }, false);
-    listener_cht = true;
+    listeners.childTab = true;
     log('+ child tab listener added');
 }
 
 // DETECT WHEN SOMEONE WINS A HAND
 function addBonusLayerListener(){
-    if(listener_bl) return;
+    if(listeners.bonusLayer) return;
     let intv34f287g = setInterval(function(){
         log("interval: bonus layer");
         if(findBonusLayer()){
@@ -501,7 +501,7 @@ function addBonusLayerListener(){
 
                 updateScores(score, lastPlayerName);
             });
-            listener_bl = true;
+            listeners.bonusLayer = true;
             log('+ bonus layer listener added');
             clearInterval(intv34f287g);
         }
@@ -510,7 +510,7 @@ function addBonusLayerListener(){
 
 // DETECT WHEN LAST PLAYER CHANGES - used to find winer of hand
 function addLastPlayerListener(){
-    if(listener_lpl) return;
+    if(listeners.lastPlayer) return;
     let intvg495h84g = setInterval(function(){
         log("interval: last player layer");
         if(findLastPlayer()){
@@ -523,7 +523,7 @@ function addLastPlayerListener(){
 
                 log("last player: " + last_player);
             });
-            listener_lpl = true;
+            listeners.lastPlayer = true;
             log('+ last player layer listener added');
             clearInterval(intvg495h84g);
         }
@@ -540,14 +540,14 @@ openTab(0);
 
 /* ====================== live score ====================== */
 
-var livePlayerScores = {};
-var lastPlayerName, score;
+let livePlayerScores = {};
+let lastPlayerName, score;
 
 function getHTMLLiveScore(){
     let scoreHTML = "";
     let sum = 100;
     for (let [key, value] of Object.entries(livePlayerScores)) {
-        if(value == undefined || value == null) value = 0;
+        if(value === undefined || value === null) value = 0;
         scoreHTML += `<p>${key}: ${value}</p>`;
         sum -= value;
     }
