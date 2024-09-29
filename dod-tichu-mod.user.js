@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Tichu Mod
-// @version      0.5
+// @version      0.6
 // @description  Tichu Mod Script for counting game cards
 // @author       Jason-Manos
 // @match        https://www.dod.gr/*
@@ -250,6 +250,8 @@ function resetAll() {
     ];
     displayCurrentCards();
     resetScores();
+
+    resetListeners();
 }
 
 function callMouseDown(el){
@@ -388,6 +390,28 @@ function addListeners(){
     addChildTabListener();
     addBonusLayerListener();
     addLastPlayerListener();
+}
+
+function resetListeners(){
+    // remove currents
+    listener_pca = false;
+    listener_ekk = false;
+    listener_ng = false;
+    listener_f = false;
+    listener_cht = false;
+    listener_bl = false;
+    listener_lpl = false;
+
+    findPlayedCardsArea().removeEventListener("DOMNodeInserted", function(){});
+    findEkkinhshButton().removeEventListener("click", function(){});
+    findMyTeamScore().removeEventListener("DOMNodeInserted", function(){});
+    findOpTeamScore().removeEventListener("DOMNodeInserted", function(){});
+    findGoFeed().removeEventListener("DOMNodeInserted", function(){});
+    window.removeEventListener('message', function(){});
+    findBonusLayer().removeEventListener("DOMNodeInserted", function(){});
+    findLastPlayer().removeEventListener("DOMNodeInserted", function(){});
+
+    addListeners();
 }
 
 // DETECT WHEN NEW CARDS ARE PLAYED
