@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Tichu Mod
-// @version      0.6
+// @version      0.6.1
 // @description  Tichu Mod Script for counting game cards
 // @author       Jason-Manos
 // @match        https://www.dod.gr/*
@@ -367,7 +367,6 @@ function openTichu(){
 
 // keep track of listeners to avoid duplicates
 var listener_pca = false;
-var listener_ekk = false;
 var listener_ng = false;
 var listener_f = false;
 var listener_cht = false;
@@ -384,18 +383,18 @@ function addListeners(){
 }
 
 function resetListeners(){
+    if(listener_pca) findPlayedCardsArea().removeEventListener("DOMNodeInserted", function(){});
+    if(listener_f) findGoFeed().removeEventListener("DOMNodeInserted", function(){});
+    if(listener_cht) window.removeEventListener('message', function(){});
+    if(listener_bl) findBonusLayer().removeEventListener("DOMNodeInserted", function(){});
+    if(listener_lpl) findLastPlayer().removeEventListener("DOMNodeInserted", function(){});
+
     // remove currents
     listener_pca = false;
     listener_f = false;
     listener_cht = false;
     listener_bl = false;
     listener_lpl = false;
-
-    findPlayedCardsArea().removeEventListener("DOMNodeInserted", function(){});
-    findGoFeed().removeEventListener("DOMNodeInserted", function(){});
-    window.removeEventListener('message', function(){});
-    findBonusLayer().removeEventListener("DOMNodeInserted", function(){});
-    findLastPlayer().removeEventListener("DOMNodeInserted", function(){});
 
     addListeners();
 }
