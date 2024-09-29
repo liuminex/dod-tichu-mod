@@ -1,14 +1,19 @@
 // ==UserScript==
 // @name         Tichu Mod
-// @version      0.2
+// @version      0.3
 // @description  Tichu Mod Script for counting game cards
 // @author       Jason-Manos
 // @match        https://www.dod.gr/*
 // @run-at       document-end
 // ==/UserScript==
 
+let newTab = undefined;
+
+
 // Create new tab to bypass CSP
-let newTab = window.open('https://manos2400.github.io/card-exchange/', '_blank', 'width=300,height=200,top=100,left=100');
+function openCardExchangeTab(){
+    newTab = window.open('https://manos2400.github.io/card-exchange/', '_blank', 'width=600,height=450,top=100,left=100');
+}
 
 let myCards = [], tmateCards = [], opp1Cards = [], opp2Cards = [], playedCards = [], unknownCards = [];
 
@@ -32,7 +37,6 @@ function createModBox() {
         <div style='padding: 5px;'>
             <button id='mod-tab-0' style='height: 25px; padding: 5px; margin: 0; background: rgb(13,43,85); background: linear-gradient(180deg, rgba(13,43,85,1) 0%, rgba(26,81,161,1) 35%, rgba(39,123,245,1) 100%); font-weight: bold; color: #f5f5f5; cursor: pointer;'>START</button>
             <button id='mod-tab-1' style='height: 25px; padding: 5px; margin: 0; background: rgb(13,43,85); background: linear-gradient(180deg, rgba(13,43,85,1) 0%, rgba(26,81,161,1) 35%, rgba(39,123,245,1) 100%); font-weight: bold; color: #f5f5f5; cursor: pointer;'>PLAYED</button>
-            <button id='mod-tab-2' style='height: 25px; padding: 5px; margin: 0; background: rgb(13,43,85); background: linear-gradient(180deg, rgba(13,43,85,1) 0%, rgba(26,81,161,1) 35%, rgba(39,123,245,1) 100%); font-weight: bold; color: #f5f5f5; cursor: pointer;'>TMATE</button>
             <button id='mod-tab-3' style='height: 25px; padding: 5px; margin: 0; background: rgb(13,43,85); background: linear-gradient(180deg, rgba(13,43,85,1) 0%, rgba(26,81,161,1) 35%, rgba(39,123,245,1) 100%); font-weight: bold; color: #f5f5f5; cursor: pointer;'>LOG</button>
             <button id='mod-tab-4' style='height: 25px; padding: 5px; margin: 0; background: rgb(13,43,85); background: linear-gradient(180deg, rgba(13,43,85,1) 0%, rgba(26,81,161,1) 35%, rgba(39,123,245,1) 100%); font-weight: bold; color: #f5f5f5; cursor: pointer;'>EXTRA</button>
         </div>
@@ -47,25 +51,26 @@ function createModBox() {
 
             <div id='cardsArea' style='max-height: calc(100vh - 70px); font-size: 0.7em; overflow-y: auto;'></div>
 
-            <div id='tmatetab' style='max-height: calc(100vh - 70px); overflow-y: auto;'>
+            <div id='mod-extras' style='max-height: calc(100vh - 70px); overflow-y: auto;'>
+                <p>manual actions (optional)</p>
+                
+                <hr>
+
+                <button id='resetAllBtn' style='border: solid 1px black; padding: 3px; margin: 2px; background: rgb(13,43,85); background: linear-gradient(180deg, rgba(13,43,85,1) 0%, rgba(26,81,161,1) 35%, rgba(39,123,245,1) 100%); font-weight: bold; color: #f5f5f5; cursor: pointer;'>Reset</button>
+                <button id='readMyCardsBtn' style='border: solid 1px black; padding: 3px; margin: 2px; background: rgb(13,43,85); background: linear-gradient(180deg, rgba(13,43,85,1) 0%, rgba(26,81,161,1) 35%, rgba(39,123,245,1) 100%); font-weight: bold; color: #f5f5f5; cursor: pointer;'>Read My Cards</button>
+                <button id='openCardExchTab' style='border: solid 1px black; padding: 3px; margin: 2px; background: rgb(13,43,85); background: linear-gradient(180deg, rgba(13,43,85,1) 0%, rgba(26,81,161,1) 35%, rgba(39,123,245,1) 100%); font-weight: bold; color: #f5f5f5; cursor: pointer;'>Open Card Exchange</button>
+                <button id='copyMyCardsBtn' style='border: solid 1px black; padding: 3px; margin: 2px; background: rgb(13,43,85); background: linear-gradient(180deg, rgba(13,43,85,1) 0%, rgba(26,81,161,1) 35%, rgba(39,123,245,1) 100%); font-weight: bold; color: #f5f5f5; cursor: pointer;'>Copy My Cards</button>
+
+                <hr>
+
                 <div id='tmatecardsinput'>
                     <input id='tmateCardsInput' type='text' placeholder='Teammate Cards'>
                     <button id='readTMateCardsBtn'>OK</button>
                 </div>
-                <div id='copymycards'>
-                    <button id='copyMyCardsBtn' style='border: solid 1px black; padding: 3px; margin: 2px; background: rgb(13,43,85); background: linear-gradient(180deg, rgba(13,43,85,1) 0%, rgba(26,81,161,1) 35%, rgba(39,123,245,1) 100%); font-weight: bold; color: #f5f5f5; cursor: pointer;'>Copy My Cards</button>
-                </div>
+
             </div>
 
-            <div id='mod-extras' style='max-height: calc(100vh - 70px); overflow-y: auto;'>
-                manual actions (optional):
-                <br>
-                <br>
-                <button id='resetAllBtn' style='border: solid 1px black; padding: 3px; margin: 2px; background: rgb(13,43,85); background: linear-gradient(180deg, rgba(13,43,85,1) 0%, rgba(26,81,161,1) 35%, rgba(39,123,245,1) 100%); font-weight: bold; color: #f5f5f5; cursor: pointer;'>Reset</button>
-                <button id='readMyCardsBtn' style='border: solid 1px black; padding: 3px; margin: 2px; background: rgb(13,43,85); background: linear-gradient(180deg, rgba(13,43,85,1) 0%, rgba(26,81,161,1) 35%, rgba(39,123,245,1) 100%); font-weight: bold; color: #f5f5f5; cursor: pointer;'>Read My Cards</button>
-            </div>
-
-            <div id='modBoxLog' style='max-height: calc(100vh - 70px); overflow-y: auto;'></div>
+            <div id='modBoxLog' style='max-height: calc(100vh - 170px); overflow-y: auto;'></div>
 
         </div>
         `;
@@ -77,10 +82,10 @@ function createModBox() {
     document.getElementById("copyMyCardsBtn").onclick = copyMyCards;
     document.getElementById("readMyCardsBtn").onclick = findMyCurrentCards;
     document.getElementById("readTMateCardsBtn").onclick = readTMateCards;
+    document.getElementById("openCardExchTab").onclick = openCardExchangeTab;
 
     document.getElementById("mod-tab-0").onclick = function(){ openTab(0); };
     document.getElementById("mod-tab-1").onclick = function(){ openTab(1); };
-    document.getElementById("mod-tab-2").onclick = function(){ openTab(2); };
     document.getElementById("mod-tab-3").onclick = function(){ openTab(3); };
     document.getElementById("mod-tab-4").onclick = function(){ openTab(4); };
 }
@@ -88,7 +93,6 @@ function createModBox() {
 function hideAllTabs(){
     document.getElementById("tab-0-start").style.display = "none";
     document.getElementById("cardsArea").style.display = "none";
-    document.getElementById("tmatetab").style.display = "none";
     document.getElementById("modBoxLog").style.display = "none";
     document.getElementById("mod-extras").style.display = "none";
 }
@@ -100,9 +104,6 @@ function openTab(tab) {
     }
     else if(tab === 1){
         document.getElementById("cardsArea").style.display = "block";
-    }
-    else if(tab === 2){
-        document.getElementById("tmatetab").style.display = "block";
     }
     else if(tab === 3){
         document.getElementById("modBoxLog").style.display = "block";
@@ -170,7 +171,7 @@ function findMyCurrentCards() {
             myCards.push(cardname);
         }
     }
-    newTab.postMessage(myCards.join(" "), 'https://manos2400.github.io');
+    if(newTab) newTab.postMessage(myCards.join(" "), 'https://manos2400.github.io');
     displayCurrentCards();
 }
 
@@ -241,7 +242,7 @@ function resetAll() {
         "5d", "5c", "5h", "5s", "4d", "4c", "4h", "4s", "3d", "3c", "3h", "3s", "2d", "2c", "2h", "2s", "Dogs", "P!", "Mahjong"
     ];
     displayCurrentCards();
-    addPlayedCardsAreaListener();
+    resetScores();
 }
 
 function callMouseDown(el){
@@ -304,7 +305,11 @@ function styleCards(cards, grid = false) {
 
 function displayCurrentCards() {
     const ca = findCardsArea();
+    const live_score = getHTMLLiveScore();
     ca.innerHTML = `
+
+            <p>${live_score}</p>
+            <hr>
             <p><span>Me (${myCards.length}): </span><span>${styleCards(myCards, false)}</span></p>
             <p><span>Teammate (${tmateCards.length}): </span><span>${styleCards(tmateCards, false)}</span></p>
             <p><span>Played (${playedCards.length}): </span><span>${styleCards(playedCards, false)}</span></p>
@@ -315,19 +320,11 @@ function displayCurrentCards() {
     }
 }
 
-function addPlayedCardsAreaListener(){
-    // add event listener to detect every time a card is played
-    // wait until cards area exists, then add event listener
-    let cardsAreaInterval = setInterval(function(){
-        if(findPlayedCardsArea()){
-            findPlayedCardsArea().addEventListener("DOMNodeInserted", function(){
-                //log('card played');
-                findCurrentPlayedCards();
-            });
-            clearInterval(cardsAreaInterval);
-        }
-    }, 1000);
-}
+
+
+
+
+
 
 
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Driver ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
@@ -350,73 +347,228 @@ function openTichu(){
             log('opened tichu');
             findCloseGamesButton().click();
             log('closed games');
+
+            openTab(1);
+            openCardExchangeTab();
+            addListeners();
+            resetAll();
+
             clearInterval(tichuButtonInterval);
         }
     }, 1000);
 }
 
-/* ====================== add event listener to ekkinhsh button ====================== */
 
-// wait until ekkinhsh button exists, then add event listener
-let ekkinhshButtonInterval = setInterval(function(){
-    if(findEkkinhshButton()){
-        log('ekkinhsh button found');
-        findEkkinhshButton().addEventListener("click", function(){
-            log('ekkinhsh button clicked');
-            resetAll();
-        });
-        clearInterval(ekkinhshButtonInterval);
-    }
-}, 1000);
 
-/* ====================== add event listener to score ====================== */
 
-// wait until score text exists, then add event listener
-let scoreInterval = setInterval(function(){
-    if(findMyTeamScore() && findOpTeamScore()){
-        log('score text found');
-        // when myTeamScore + OpTeamScore changes, reset all
-        let myTeamScore = findMyTeamScore().innerText;
-        let opTeamScore = findOpTeamScore().innerText;
-        clearInterval(scoreInterval);
-        setInterval(function(){
-            if(findMyTeamScore().innerText !== myTeamScore || findOpTeamScore().innerText !== opTeamScore){
-                log('score changed');
-                myTeamScore = findMyTeamScore().innerText;
-                opTeamScore = findOpTeamScore().innerText;
+/* ====================== LISTENERS ====================== */
+
+// keep track of listeners to avoid duplicates
+var listener_pca = false;
+var listener_ekk = false;
+var listener_ng = false;
+var listener_f = false;
+var listener_cht = false;
+var listener_bl = false;
+var listener_lpl = false;
+
+function addListeners(){
+    addPlayedCardsAreaListener();
+    addEkkinhshButtonListener();
+    addNewGameListener();
+    addFeedListener();
+    addChildTabListener();
+    addBonusLayerListener();
+    addLastPlayerListener();
+}
+
+// DETECT WHEN NEW CARDS ARE PLAYED
+function addPlayedCardsAreaListener(){
+    if(listener_pca) return;
+    let cardsAreaInterval = setInterval(function(){
+        if(findPlayedCardsArea()){
+            findPlayedCardsArea().addEventListener("DOMNodeInserted", function(){
+                findCurrentPlayedCards();
+            });
+            listener_pca = true;
+            log('+ played cards listener added');
+            clearInterval(cardsAreaInterval);
+        }
+    }, 1000);
+}
+// DETECT WHEN EKKINHSH BUTTON IS CLICKED
+function addEkkinhshButtonListener(){
+    if(listener_ekk) return;
+
+    let ekkinhshButtonInterval = setInterval(function(){
+        if(findEkkinhshButton()){
+            log('ekkinhsh button found');
+            findEkkinhshButton().addEventListener("click", function(){
+                log('ekkinhsh button clicked');
                 resetAll();
-            }
-        }, 1000);
+            });
+            listener_ekk = true;
+            log('+ ekkinhsh button listener added');
+            clearInterval(ekkinhshButtonInterval);
+        }
+    }, 1000);
+}
 
-        clearInterval(scoreInterval);
-    }
-}, 1000);
+// DETECT WHEN SCORE CHANGES - new game detection
+function addNewGameListener(){
+    if(listener_ng) return;
+    let scoreInterval = setInterval(function(){
+        if(findMyTeamScore() && findOpTeamScore()){
+            log('score text found');
+            // when myTeamScore + OpTeamScore changes, reset all
+            let myTeamScore = findMyTeamScore().innerText;
+            let opTeamScore = findOpTeamScore().innerText;
+            clearInterval(scoreInterval);
+            setInterval(function(){
+                if(findMyTeamScore().innerText !== myTeamScore || findOpTeamScore().innerText !== opTeamScore){
+                    log('score changed');
+                    myTeamScore = findMyTeamScore().innerText;
+                    opTeamScore = findOpTeamScore().innerText;
+                    resetAll();
+                }
+            }, 1000);
+            listener_ng = true;
+            log('+ ekkinhsh button listener added');
+            clearInterval(scoreInterval);
+        }
+    }, 1000);
+}
 
-/* ====================== add event listener to feed ====================== */
-setInterval(function(){
-    if(findGoFeed() && findGoFeed().innerText === "Παραλάβετε τις κάρτες"){
-        // when innerText changes again, get my cards
-        const feedInterval = setInterval(function(){
-            if(findGoFeed().innerText !== "Παραλάβετε τις κάρτες"){
-                log('reading cards');
-                findMyCurrentCards();
-                clearInterval(feedInterval);
-            }
-        }, 1000);
-    }
-}, 1000);
+// DETECT WHEN WE RECIEVE CARDS
+function addFeedListener(){
+    if(listener_f) return;
+    let intv398g764 = setInterval(function(){
+        if(findGoFeed() && findGoFeed().innerText === "Παραλάβετε τις κάρτες"){
+            // when innerText changes again, get my cards
+            const feedInterval = setInterval(function(){
+                if(findGoFeed().innerText !== "Παραλάβετε τις κάρτες"){
+                    log('reading cards');
+                    findMyCurrentCards();
+                    resetScores();
+                    clearInterval(feedInterval);
+                }
+            }, 1000);
+            listener_f = true;
+            log('+ feed listener added');
+            clearInterval(intv398g764);
+        }
+    }, 1000);
+}
 
-/* ====================== add event listener to child tab ====================== */
-window.addEventListener('message', function(event) {
-    if (event.origin === 'https://manos2400.github.io') {
-        const cards = event.data.trim().split(" ");
-        cards.forEach(card => { if (!rmFromUnkCards(card)) tmateCards.push(card); });
-        displayCurrentCards();
-        openTab(1);
-    }
-}, false);
+// DETECT WHEN TEAMMATE SENDS CARDS
+function addChildTabListener(){
+    if(listener_cht) return;
+    window.addEventListener('message', function(event) {
+        if (event.origin === 'https://manos2400.github.io') {
+            const cards = event.data.trim().split(" ");
+            cards.forEach(card => { if (!rmFromUnkCards(card)) tmateCards.push(card); });
+            displayCurrentCards();
+            openTab(1);
+        }
+    }, false);
+    listener_cht = true;
+    log('+ child tab listener added');
+}
+
+// DETECT WHEN SOMEONE WINS A HAND
+function addBonusLayerListener(){
+    if(listener_bl) return;
+    let intv34f287g = setInterval(function(){
+        if(findBonusLayer()){
+            findBonusLayer().addEventListener("DOMNodeInserted", function(){
+                score = findBonusLayer().innerText;
+
+                // if score == 'XP*' skip it
+                if(score.includes("XP")) return;
+
+
+                log("hand score: "+score);
+                // triggered every time someone wins a hand
+
+                updateScores(score, lastPlayerName);
+            });
+            listener_bl = true;
+            log('+ bonus layer listener added');
+            clearInterval(intv34f287g);
+        }
+    }, 1000);
+}
+
+// DETECT WHEN LAST PLAYER CHANGES - used to find winer of hand
+function addLastPlayerListener(){
+    if(listener_lpl) return;
+    let intvg495h84g = setInterval(function(){
+        if(findLastPlayer()){
+            findLastPlayer().addEventListener("DOMNodeInserted", function(){
+
+                const full = findLastPlayer().innerText;
+                // return all content after the second " ":
+                const last_player = full.split(" ").slice(2).join(" ");
+                lastPlayerName = last_player;
+
+                log("last player: " + last_player);
+            });
+            listener_lpl = true;
+            log('+ last player layer listener added');
+            clearInterval(intvg495h84g);
+        }
+    }, 1000);
+}
+
+
+
 
 /* ====================== in game ====================== */
 
 openTab(0);
-resetAll();
+
+
+/* ====================== live score ====================== */
+
+var livePlayerScores = {};
+var lastPlayerName, score;
+
+function getHTMLLiveScore(){
+    let scoreHTML = "";
+    let sum = 100;
+    for (let [key, value] of Object.entries(livePlayerScores)) {
+        if(value == undefined || value == null) value = 0;
+        scoreHTML += `<p>${key}: ${value}</p>`;
+        sum -= value;
+    }
+    scoreHTML += `<p>remaining: ${sum}</p>`;
+    return scoreHTML;
+}
+
+function updateScores(s,n){
+    if(livePlayerScores[n]){
+        livePlayerScores[n] += parseInt(s);
+    }else{
+        livePlayerScores[n] = parseInt(s);
+    }
+    displayCurrentCards();
+}
+function resetScores(){
+    // call this when new game starts
+    livePlayerScores = {};
+    displayCurrentCards();
+}
+
+// listener to get hand score
+function findBonusLayer(){
+    return document.getElementById("bonusAnimationsLayer");
+}
+
+
+// listener to keep track of winner of hand
+function findLastPlayer(){
+    return document.getElementById("txtLastHand");
+}
+
+
+
