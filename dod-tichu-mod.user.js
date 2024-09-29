@@ -250,8 +250,6 @@ function resetAll() {
     ];
     displayCurrentCards();
     resetScores();
-
-    resetListeners();
 }
 
 function callMouseDown(el){
@@ -329,13 +327,6 @@ function displayCurrentCards() {
     }
 }
 
-
-
-
-
-
-
-
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Driver ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 /* ====================== create mod box ====================== */
@@ -362,6 +353,7 @@ function openTichu(){
             openCardExchangeTab();
             addListeners();
             resetAll();
+            resetListeners();
 
             clearInterval(tichuButtonInterval);
         }
@@ -384,7 +376,6 @@ var listener_lpl = false;
 
 function addListeners(){
     addPlayedCardsAreaListener();
-    addEkkinhshButtonListener();
     addNewGameListener();
     addFeedListener();
     addChildTabListener();
@@ -395,17 +386,12 @@ function addListeners(){
 function resetListeners(){
     // remove currents
     listener_pca = false;
-    listener_ekk = false;
-    listener_ng = false;
     listener_f = false;
     listener_cht = false;
     listener_bl = false;
     listener_lpl = false;
 
     findPlayedCardsArea().removeEventListener("DOMNodeInserted", function(){});
-    findEkkinhshButton().removeEventListener("click", function(){});
-    findMyTeamScore().removeEventListener("DOMNodeInserted", function(){});
-    findOpTeamScore().removeEventListener("DOMNodeInserted", function(){});
     findGoFeed().removeEventListener("DOMNodeInserted", function(){});
     window.removeEventListener('message', function(){});
     findBonusLayer().removeEventListener("DOMNodeInserted", function(){});
@@ -429,49 +415,7 @@ function addPlayedCardsAreaListener(){
         }
     }, 1000);
 }
-// DETECT WHEN EKKINHSH BUTTON IS CLICKED
-function addEkkinhshButtonListener(){
-    if(listener_ekk) return;
 
-    let ekkinhshButtonInterval = setInterval(function(){
-        log("interval: ekkinhsh button");
-        if(findEkkinhshButton()){
-            log('ekkinhsh button found');
-            findEkkinhshButton().addEventListener("click", function(){
-                log('ekkinhsh button clicked');
-                resetAll();
-            });
-            listener_ekk = true;
-            log('+ ekkinhsh button listener added');
-            clearInterval(ekkinhshButtonInterval);
-        }
-    }, 1000);
-}
-
-// DETECT WHEN SCORE CHANGES - new game detection
-/*function addNewGameListener(){
-    let scoreInterval = setInterval(function(){
-        log("interval: score text");
-        if(findMyTeamScore() && findOpTeamScore()){
-            log('score text found');
-            // when myTeamScore + OpTeamScore changes, reset all
-            let myTeamScore = findMyTeamScore().innerText;
-            let opTeamScore = findOpTeamScore().innerText;
-            clearInterval(scoreInterval);
-            setInterval(function(){
-                log('interval: score changed'); // THIS ------------------------------------------------------------------------
-                if(findMyTeamScore().innerText !== myTeamScore || findOpTeamScore().innerText !== opTeamScore){
-                    log('score changed');
-                    myTeamScore = findMyTeamScore().innerText;
-                    opTeamScore = findOpTeamScore().innerText;
-                    resetAll();
-                }
-            }, 1000);
-            log('+ ekkinhsh button listener added');
-            clearInterval(scoreInterval);
-        }
-    }, 1000);
-}*/
 function addNewGameListener(){
     if(listener_ng) return;
     let intve54h6 = setInterval(function(){
@@ -480,10 +424,12 @@ function addNewGameListener(){
             findMyTeamScore().addEventListener("DOMNodeInserted", function(){
                 log('new game detected (1)');
                 resetAll();
+                resetListeners();
             });
             findOpTeamScore().addEventListener("DOMNodeInserted", function(){
                 log('new game detected (2)');
                 resetAll();
+                resetListeners();
             });
             listener_ng = true;
             log('+ new game listener added');
@@ -492,28 +438,7 @@ function addNewGameListener(){
     }, 1000);
 }
 
-// DETECT WHEN WE RECIEVE CARDS
-/*function addFeedListener(){
-    if(listener_f) return;
-    let intv398g764 = setInterval(function(){
-        log("interval: feed text"); // THIS ------------------------------------------------------------------------
-        if(findGoFeed() && findGoFeed().innerText === "Παραλάβετε τις κάρτες"){
-            // when innerText changes again, get my cards
-            const feedInterval = setInterval(function(){
-                log('interval: feed text changed');
-                if(findGoFeed().innerText !== "Παραλάβετε τις κάρτες"){
-                    log('reading cards');
-                    findMyCurrentCards();
-                    resetScores();
-                    clearInterval(feedInterval);
-                }
-            }, 1000);
-            listener_f = true;
-            log('+ feed listener added');
-            clearInterval(intv398g764);
-        }
-    }, 1000);
-}*/
+// DETECT WHEN WE RECEIVE CARDS
 
 function findParalaveteKartesButton() {
     return document.getElementById("btnReceive");
