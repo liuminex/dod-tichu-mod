@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Tichu Mod
-// @version      0.2
+// @version      0.4
 // @description  Tichu Mod Script for counting game cards
 // @author       Jason-Manos
 // @match        https://www.dod.gr/*
@@ -20,7 +20,8 @@ let myCards = [], tmateCards = [], opp1Cards = [], opp2Cards = [], playedCards =
 function createModBox() {
     const menuBtn = document.createElement("button");
     menuBtn.innerHTML = "Open Tichu Mod Menu";
-    menuBtn.style.cssText = "position: fixed; top: 0; left: 0; z-index: 9998; background-color: #121212; color: #f5f5f5; border: none; padding: 10px; font-size: 20px;";
+    menuBtn.id = "openModMenuBtn";
+    menuBtn.style.cssText = "position: fixed; bottom: 0; left: 0; z-index: 9998; background-color: #121212; color: #f5f5f5; border: none; padding: 10px; font-size: 10px;";
     menuBtn.onclick = openModMenu;
     document.body.appendChild(menuBtn);
 
@@ -113,8 +114,14 @@ function openTab(tab) {
     }
 }
 
-function closeModMenu() { document.getElementById("modBox").style.display = "none"; }
-function openModMenu() { document.getElementById("modBox").style.display = "block"; }
+function closeModMenu() {
+    document.getElementById("modBox").style.display = "none";
+    document.getElementById("openModMenuBtn").style.display = "block";
+}
+function openModMenu() {
+    document.getElementById("modBox").style.display = "block";
+    document.getElementById("openModMenuBtn").style.display = "none";
+}
 
 function copyMyCards() {
     navigator.clipboard.writeText(myCards.join(" "));
