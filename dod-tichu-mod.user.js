@@ -1,66 +1,113 @@
 // ==UserScript==
 // @name         Tichu Mod
-// @version      0.6.2
+// @version      0.7.1
 // @description  Tichu Mod Script for counting game cards
 // @author       Jason-Manos
 // @match        https://www.dod.gr/*
 // @run-at       document-end
 // ==/UserScript==
 
+
+/*
+
+1. VARIABLES
+2. MOD BOX
+3. FIND ELEMENTS
+
+
+*/
+
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 1. VARIABLES ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+// PARAMETERS
+const EXCH_CARDS_URL = 'https://manos2400.github.io'; // domain where card-exchange rooms are hosted
+const EXCH_CARDS_PATH = 'https://manos2400.github.io/card-exchange/'; // exact location where card-exchange rooms are hosted
+
+// RUN TIME (do not need to change)
 let newTab = undefined;
-
-
-// Create new tab to bypass CSP
-function openCardExchangeTab(){
-    newTab = window.open('https://manos2400.github.io/card-exchange/', '_blank', 'width=600,height=450,top=100,left=100');
-}
 
 let myCards = [], tmateCards = [], opp1Cards = [], opp2Cards = [], playedCards = [], unknownCards = [];
 
+const intervals_list = [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+];
+
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 2. MOD BOX ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
 function createModBox() {
+
+    const btn_style = "border: solid 1px black; padding: 3px; margin: 2px; background: rgb(13,43,85); background: linear-gradient(180deg, rgba(13,43,85,1) 0%, rgba(26,81,161,1) 35%, rgba(39,123,245,1) 100%); font-weight: bold; color: #f5f5f5; cursor: pointer;";
+
+    // OUT OF MODBOX
+
+    // open mod box btn
     const menuBtn = document.createElement("button");
     menuBtn.innerHTML = "Open Tichu Mod Menu";
     menuBtn.id = "openModMenuBtn";
-    menuBtn.style.cssText = "position: fixed; bottom: 0; left: 0; z-index: 9998; background-color: #121212; color: #f5f5f5; border: none; padding: 10px; font-size: 10px;";
-    menuBtn.onclick = openModMenu;
+    menuBtn.style.cssText = "position: fixed; display: none; bottom: 0; left: 0; z-index: 9998; "+btn_style;
+    menuBtn.onclick = function () {
+        document.getElementById("modBox").style.display = "block";
+        document.getElementById("openModMenuBtn").style.display = "none";
+    };
     document.body.appendChild(menuBtn);
+
+    // open tichu btn (one time outside btn)
+    const theTichuBtn = document.createElement("button");
+    theTichuBtn.innerHTML = "Open Tichu";
+    theTichuBtn.style.cssText = btn_style + "position: fixed; bottom: 0; left: 0; z-index: 9998;";
+    theTichuBtn.onclick = function(){
+        document.getElementById("modBox").style.display = "block";
+        openTichu();
+        this.remove();
+    }
+    document.body.appendChild(theTichuBtn);
+
+    // MODBOX
 
     const modBox = document.createElement("div");
     modBox.id = "modBox";
-    modBox.style.cssText = "position: fixed; top: 0; left: 0; width: 400px; height: 100vh; background-color: rgba(35,37,46,0.8); z-index: 9999; font-size: 15px; overflow-y: auto; font-weight: bold; box-sizing: border-box;";
+    modBox.style.cssText = "position: fixed; top: 0; left: 0; display: none; max-width: 400px; height: 100vh; background-color: rgba(35,37,46,0.8); z-index: 9999; font-size: 15px; font-weight: bold; box-sizing: border-box;";
     modBox.innerHTML = `
-        <div style='height: 30px; font-weight: bold; font-size: 17px; color: #dc0303; text-align:center; padding: 2px;'>Tichu Mod Box <button id='closeModMenuBtn'
-        style='border: solid 1px black; padding: 3px; margin: 2px; background: rgb(13,43,85); background: linear-gradient(180deg, rgba(13,43,85,1) 0%, rgba(26,81,161,1) 35%, rgba(39,123,245,1) 100%); font-weight: bold; color: #f5f5f5; cursor: pointer;'
-        >close</button></div>
-
-        <hr style='margin: 0 2px; color: #dc0303;'>
-
-        <div style='padding: 5px;'>
-            <button id='mod-tab-0' style='height: 25px; padding: 5px; margin: 0; background: rgb(13,43,85); background: linear-gradient(180deg, rgba(13,43,85,1) 0%, rgba(26,81,161,1) 35%, rgba(39,123,245,1) 100%); font-weight: bold; color: #f5f5f5; cursor: pointer;'>START</button>
-            <button id='mod-tab-1' style='height: 25px; padding: 5px; margin: 0; background: rgb(13,43,85); background: linear-gradient(180deg, rgba(13,43,85,1) 0%, rgba(26,81,161,1) 35%, rgba(39,123,245,1) 100%); font-weight: bold; color: #f5f5f5; cursor: pointer;'>PLAYED</button>
-            <button id='mod-tab-3' style='height: 25px; padding: 5px; margin: 0; background: rgb(13,43,85); background: linear-gradient(180deg, rgba(13,43,85,1) 0%, rgba(26,81,161,1) 35%, rgba(39,123,245,1) 100%); font-weight: bold; color: #f5f5f5; cursor: pointer;'>LOG</button>
-            <button id='mod-tab-4' style='height: 25px; padding: 5px; margin: 0; background: rgb(13,43,85); background: linear-gradient(180deg, rgba(13,43,85,1) 0%, rgba(26,81,161,1) 35%, rgba(39,123,245,1) 100%); font-weight: bold; color: #f5f5f5; cursor: pointer;'>EXTRA</button>
+        <div style='height: 30px; font-weight: bold; font-size: 17px; color: #dc0303; padding: 2px; text-align: center;'>Tichu Mod Box
+            <button id='closeModMenuBtn' style='${btn_style}'>close</button>
         </div>
 
         <hr style='margin: 0 2px; color: #dc0303;'>
 
-        <div style='padding: 5px;'> <!-- tabs contents -->
+        <div style='padding: 5px;'>
+            <button id='mod-tab-1' style='${btn_style}'>PLAYED</button>
+            <button id='mod-tab-3' style='${btn_style}'>LOG</button>
+            <button id='mod-tab-4' style='${btn_style}'>EXTRA</button>
+        </div>
 
-            <div id='tab-0-start' style='max-height: calc(100vh - 70px); overflow-y: auto;'>
-                <button id='openTichuBtn' style='border: solid 1px black; padding: 3px; margin: 2px; background: rgb(13,43,85); background: linear-gradient(180deg, rgba(13,43,85,1) 0%, rgba(26,81,161,1) 35%, rgba(39,123,245,1) 100%); font-weight: bold; color: #f5f5f5; cursor: pointer;'>Open Tichu</button>
-            </div>
+        <hr style='margin: 0 2px; color: #dc0303;'>
 
-            <div id='cardsArea' style='max-height: calc(100vh - 70px); font-size: 0.7em; overflow-y: auto;'></div>
+        <div style='padding: 5px; max-height: calc(100vh - 70px); overflow-y: auto;'> <!-- tabs contents -->
 
-            <div id='mod-extras' style='max-height: calc(100vh - 70px); overflow-y: auto;'>
+            <div id='cardsArea' style='font-size: 0.7em;'></div>
+
+            <div id='mod-extras'>
                 <p>manual actions (optional)</p>
 
                 <hr>
 
-                <button id='resetAllBtn' style='border: solid 1px black; padding: 3px; margin: 2px; background: rgb(13,43,85); background: linear-gradient(180deg, rgba(13,43,85,1) 0%, rgba(26,81,161,1) 35%, rgba(39,123,245,1) 100%); font-weight: bold; color: #f5f5f5; cursor: pointer;'>Reset</button>
-                <button id='readMyCardsBtn' style='border: solid 1px black; padding: 3px; margin: 2px; background: rgb(13,43,85); background: linear-gradient(180deg, rgba(13,43,85,1) 0%, rgba(26,81,161,1) 35%, rgba(39,123,245,1) 100%); font-weight: bold; color: #f5f5f5; cursor: pointer;'>Read My Cards</button>
-                <button id='openCardExchTab' style='border: solid 1px black; padding: 3px; margin: 2px; background: rgb(13,43,85); background: linear-gradient(180deg, rgba(13,43,85,1) 0%, rgba(26,81,161,1) 35%, rgba(39,123,245,1) 100%); font-weight: bold; color: #f5f5f5; cursor: pointer;'>Open Card Exchange</button>
-                <button id='copyMyCardsBtn' style='border: solid 1px black; padding: 3px; margin: 2px; background: rgb(13,43,85); background: linear-gradient(180deg, rgba(13,43,85,1) 0%, rgba(26,81,161,1) 35%, rgba(39,123,245,1) 100%); font-weight: bold; color: #f5f5f5; cursor: pointer;'>Copy My Cards</button>
+                <button id='openTichuBtn' style='${btn_style}'>Open Tichu</button>
+                <button id='resetAllBtn' style='${btn_style}'>Reset</button>
+                <button id='readMyCardsBtn' style='${btn_style}'>Read My Cards</button>
+                <button id='openCardExchTab' style='${btn_style}'>Open Card Exchange</button>
+                <button id='copyMyCardsBtn' style='${btn_style}'>Copy My Cards</button>
+                <button id='stopIntervalsBtn' style='${btn_style}'>Stop Intervals</button>
+                <button id='addListenersBtn' style='${btn_style}'>Add Listeners</button>
 
                 <hr>
 
@@ -71,69 +118,72 @@ function createModBox() {
 
             </div>
 
-            <div id='modBoxLog' style='max-height: calc(100vh - 170px); overflow-y: auto;'></div>
+            <div id='modBoxLog' style='font-size: 0.7em;'></div>
 
         </div>
         `;
     document.body.appendChild(modBox);
 
-    document.getElementById("closeModMenuBtn").onclick = closeModMenu;
+    document.getElementById("closeModMenuBtn").onclick = function () {
+        document.getElementById("modBox").style.display = "none";
+        document.getElementById("openModMenuBtn").style.display = "block";
+    };
     document.getElementById("openTichuBtn").onclick = openTichu;
     document.getElementById("resetAllBtn").onclick = resetAll;
     document.getElementById("copyMyCardsBtn").onclick = copyMyCards;
     document.getElementById("readMyCardsBtn").onclick = findMyCurrentCards;
     document.getElementById("readTMateCardsBtn").onclick = readTMateCards;
     document.getElementById("openCardExchTab").onclick = openCardExchangeTab;
+    document.getElementById("stopIntervalsBtn").onclick = stopAllIntervals;
+    document.getElementById("addListenersBtn").onclick = addListeners;
 
-    document.getElementById("mod-tab-0").onclick = function(){ openTab(0); };
-    document.getElementById("mod-tab-1").onclick = function(){ openTab(1); };
-    document.getElementById("mod-tab-3").onclick = function(){ openTab(3); };
-    document.getElementById("mod-tab-4").onclick = function(){ openTab(4); };
+    document.getElementById("mod-tab-1").onclick = function(){
+        hideAllTabs();
+        findCardsArea().style.display = "block";
+    };
+    document.getElementById("mod-tab-3").onclick = function(){
+        hideAllTabs();
+        findModBoxLog().style.display = "block";
+    }
+    document.getElementById("mod-tab-4").onclick = function(){
+        hideAllTabs();
+        findModExtras().style.display = "block";
+    }
 }
 
 function hideAllTabs(){
-    document.getElementById("tab-0-start").style.display = "none";
-    document.getElementById("cardsArea").style.display = "none";
-    document.getElementById("modBoxLog").style.display = "none";
-    document.getElementById("mod-extras").style.display = "none";
+    findCardsArea().style.display = "none";
+    findModBoxLog().style.display = "none";
+    findModExtras().style.display = "none";
 }
 
-function openTab(tab) {
-    hideAllTabs();
-    if(tab === 0){
-        document.getElementById("tab-0-start").style.display = "block";
-    }
-    else if(tab === 1){
-        document.getElementById("cardsArea").style.display = "block";
-    }
-    else if(tab === 3){
-        document.getElementById("modBoxLog").style.display = "block";
-    }
-    else if(tab === 4){
-        document.getElementById("mod-extras").style.display = "block";
-    }
+function log(str, level="default"){
+
+    let color = "white";
+    if(level == "e") color = "red";
+    if(level == "w") color = "yellow";
+
+    findModBoxLog().innerHTML += "<p class='logtry' style='color: "+color+"'>" + str + "</p>";
+    // scroll into view
+    findLastLogtry().scrollIntoView();
 }
 
-function closeModMenu() {
-    document.getElementById("modBox").style.display = "none";
-    document.getElementById("openModMenuBtn").style.display = "block";
-}
-function openModMenu() {
-    document.getElementById("modBox").style.display = "block";
-    document.getElementById("openModMenuBtn").style.display = "none";
-}
 
-function copyMyCards() {
-    navigator.clipboard.writeText(myCards.join(" "));
-    log("My cards copied to clipboard");
-}
-function readTMateCards() {
-    const cards = document.getElementById("tmateCardsInput").value.trim().split(" ");
-    cards.forEach(card => { if (!rmFromUnkCards(card)) tmateCards.push(card); });
-    displayCurrentCards();
-    openTab(1);
-}
 
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 3. FIND ELEMENTS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+function findDummyElement(){
+    // real element that always exists
+    return document.getElementById("cookies_component");
+}
+function findLastLogtry(){
+    let logtry = document.getElementsByClassName("logtry");
+    return logtry[logtry.length - 1];
+}
+function findModExtras(){
+    return document.getElementById("mod-extras");
+}
 function findGamesButton() {
     return document.getElementById("component_bottom_middle_main_games");
 }
@@ -141,7 +191,7 @@ function findCloseGamesButton() {
     return document.querySelector("#topBarCloseButton");
 }
 function findTichuButton() {
-    return document.evaluate("/html/body/div/div/div[7]/div[2]/div[2]/div/div/div/div[2]/div[2]/div[5]", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+    return getElByXPath("/html/body/div/div/div[7]/div[2]/div[2]/div/div/div/div[2]/div[2]/div[5]");
 }
 function findEkkinhshButton() {
     return document.getElementById("go_startstop");
@@ -161,12 +211,60 @@ function findOpTeamScore() {
 function findGoFeed() {
     return document.querySelector("#go_feed > span.dodlangspan");
 }
+function findMyCardsArea(){
+    return document.getElementById("hand");
+}
+function findTMateCardInput(){
+    return document.getElementById("tmateCardsInput");
+}
+function findPlayedCardsArea() {
+    return document.getElementById("cardsHolder");
+}
+function findParalaveteKartesButton() {
+    return document.getElementById("btnReceive");
+}
+function findBonusLayer(){ // listener to get hand score
+    return document.getElementById("bonusAnimationsLayer");
+}
+function findLastPlayer(){ // listener to keep track of winner of hand
+    return document.getElementById("txtLastHand");
+}
+
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 4. GENERAL FUNCTIONS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+
+function getElByXPath(xpath){
+    var result = document.evaluate(xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null);
+    return result.singleNodeValue;
+}
+function callMouseDown(el){
+    el.dispatchEvent(new MouseEvent("mousedown", {bubbles: true, cancelable: true, view: window}));
+}
+
+
+
+
+
+
+function copyMyCards() {
+    navigator.clipboard.writeText(myCards.join(" "));
+    log("My cards copied to clipboard");
+}
+function readTMateCards() {
+    const cards = findTMateCardInput().value.trim().split(" ");
+    cards.forEach(card => { if (!rmFromUnkCards(card)) tmateCards.push(card); });
+    displayCurrentCards();
+    hideAllTabs();
+    findCardsArea().style.display = "block";
+}
+
+
 
 function findMyCurrentCards() {
-    const myCardsArea = document.getElementById("hand");
+    const myCardsArea = findMyCardsArea();
 
     if (!myCardsArea) {
-        log("my cards area not found");
+        log("my cards area not found", "e");
         return "";
     }
 
@@ -178,7 +276,9 @@ function findMyCurrentCards() {
             myCards.push(cardname);
         }
     }
-    if(newTab) newTab.postMessage(myCards.join(" "), 'https://manos2400.github.io');
+    if(newTab) newTab.postMessage(myCards.join(" "), EXCH_CARDS_URL);
+    else log("newTab not found", "e");
+
     displayCurrentCards();
 }
 
@@ -201,15 +301,13 @@ function rmFromTmateCards(cardname) {
     return 0;
 }
 
-function findPlayedCardsArea() {
-    return document.getElementById("cardsHolder");
-}
+
 
 function findCurrentPlayedCards() {
     const playedCardsArea = findPlayedCardsArea();
 
     if (!playedCardsArea) {
-        log("played cards area not found");
+        log("played cards area not found", "e");
         return "";
     }
 
@@ -231,16 +329,9 @@ function findCurrentPlayedCards() {
     displayCurrentCards();
 }
 
-function log(str) {
-    findModBoxLog().innerHTML += "<p class='logtry'>" + str + "</p>";
 
-    // scroll into view
-    let logtry = document.getElementsByClassName("logtry");
-    logtry[logtry.length - 1].scrollIntoView();
-}
 
 function resetAll() {
-    document.title = "DOD Tichu MOD";
     log("resetting all...");
     myCards = []; tmateCards = []; opp1Cards = []; opp2Cards = []; playedCards = [];
     unknownCards = [
@@ -252,9 +343,7 @@ function resetAll() {
     resetScores();
 }
 
-function callMouseDown(el){
-    el.dispatchEvent(new MouseEvent("mousedown", {bubbles: true, cancelable: true, view: window}));
-}
+
 
 function styleCards(cards, grid = false) {
     const order = ["Dragon", "Phoenix", "Dogs", "Mahjong", "A", "K", "Q", "J", "10", "9", "8", "7", "6", "5", "4", "3", "2"];
@@ -323,7 +412,7 @@ function displayCurrentCards() {
             <p><span>Unknown (${unknownCards.length}): </span><span>${styleCards(unknownCards, true)}</span></p>
         `;
     if (playedCards.length + myCards.length + tmateCards.length + opp1Cards.length + opp2Cards.length + unknownCards.length !== 56) {
-        log("ERROR: cards count is not 56");
+        log("cards count is not 56", "w");
     }
 }
 
@@ -341,7 +430,7 @@ function openTichu(){
     log('opened games');
 
     // wait until tichu button exists, then open tichu and close games
-    let tichuButtonInterval = setInterval(function(){
+    var interval_tichu_btn = setInterval(function(){
         log("interval: tichu button");
         if(findTichuButton()){
             callMouseDown(findTichuButton());
@@ -349,13 +438,15 @@ function openTichu(){
             findCloseGamesButton().click();
             log('closed games');
 
-            openTab(1);
-            openCardExchangeTab();
-            addAllListeners();
-            resetAll();
-            resetListeners();
+            hideAllTabs();
+            findCardsArea().style.display = "block";
 
-            clearInterval(tichuButtonInterval);
+            openCardExchangeTab();
+            addChildTabListener();
+
+            resetAll();
+
+            clearInterval(interval_tichu_btn);
         }
     }, 1000);
 }
@@ -365,177 +456,22 @@ function openTichu(){
 
 /* ====================== LISTENERS ====================== */
 
-// keep track of listeners to avoid duplicates
-let listeners = {
-    playedCardsArea: false,
-    newGame: false,
-    feed: false,
-    childTab: false,
-    bonusLayer: false,
-    lastPlayer: false
-};
+function cardsRecieved(){
+    log('paralavi button clicked');
 
-function addAllListeners(){
-    addPlayedCardsAreaListener();
-    addNewGameListener();
-    addFeedListener();
-    addChildTabListener();
-    addBonusLayerListener();
-    addLastPlayerListener();
-}
+    setTimeout(function(){
 
-function resetListeners(){
-    if(listeners.playedCardsArea) findPlayedCardsArea().removeEventListener("DOMNodeInserted", function(){});
-    if(listeners.feed) findGoFeed().removeEventListener("DOMNodeInserted", function(){});
-    if(listeners.bonusLayer) findBonusLayer().removeEventListener("DOMNodeInserted", function(){});
-    if(listeners.lastPlayer) findLastPlayer().removeEventListener("DOMNodeInserted", function(){});
+        findMyCurrentCards();
+        resetScores();
 
-    // remove currents
-    listeners.playedCardsArea = false;
-    listeners.feed = false;
-    listeners.bonusLayer = false;
-    listeners.lastPlayer = false;
-
-    addPlayedCardsAreaListener(); addFeedListener(); addBonusLayerListener(); addLastPlayerListener();
-}
-
-// DETECT WHEN NEW CARDS ARE PLAYED
-function addPlayedCardsAreaListener(){
-    if(listeners.playedCardsArea) return;
-    let cardsAreaInterval = setInterval(function(){
-        log("interval: played cards area");
-        if(findPlayedCardsArea()){
-            findPlayedCardsArea().addEventListener("DOMNodeInserted", function(){
-                findCurrentPlayedCards();
-            });
-            listeners.playedCardsArea = true;
-            log('+ played cards listener added');
-            clearInterval(cardsAreaInterval);
-        }
-    }, 1000);
-}
-
-function addNewGameListener(){
-    if(listeners.newGame) return;
-    let intve54h6 = setInterval(function(){
-        log("interval: new game");
-        if(findMyTeamScore() && findOpTeamScore()){
-            findMyTeamScore().addEventListener("DOMNodeInserted", function(){
-                log('new game detected (1)');
-                resetAll();
-                resetListeners();
-            });
-            findOpTeamScore().addEventListener("DOMNodeInserted", function(){
-                log('new game detected (2)');
-                resetAll();
-                resetListeners();
-            });
-            listeners.newGame = true;
-            log('+ new game listener added');
-            clearInterval(intve54h6);
-        }
-    }, 1000);
-}
-
-// DETECT WHEN WE RECEIVE CARDS
-
-function findParalaveteKartesButton() {
-    return document.getElementById("btnReceive");
-}
-function addFeedListener(){
-    if(listeners.feed) return;
-
-    let intv9384hbg = setInterval(function(){
-        log("interval: paralavi button");
-        if(findParalaveteKartesButton()){
-            log('paralavi button found');
-            findParalaveteKartesButton().onclick = function(){
-
-                log('paralavi button clicked');
-
-                setTimeout(function(){
-
-                    findMyCurrentCards();
-                    resetScores();
-
-                }, 500);
-                
-            };
-            listeners.feed = true;
-            log('+ paralavete kartes listener added');
-            clearInterval(intv9384hbg);
-        }
-    }, 1000);
-}
-
-// DETECT WHEN TEAMMATE SENDS CARDS
-function addChildTabListener(){
-    if(listeners.childTab) return;
-    window.addEventListener('message', function(event) {
-        if (event.origin === 'https://manos2400.github.io') {
-            const cards = event.data.trim().split(" ");
-            cards.forEach(card => { if (!rmFromUnkCards(card)) tmateCards.push(card); });
-            displayCurrentCards();
-            openTab(1);
-        }
-    }, false);
-    listeners.childTab = true;
-    log('+ child tab listener added');
-}
-
-// DETECT WHEN SOMEONE WINS A HAND
-function addBonusLayerListener(){
-    if(listeners.bonusLayer) return;
-    let intv34f287g = setInterval(function(){
-        log("interval: bonus layer");
-        if(findBonusLayer()){
-            findBonusLayer().addEventListener("DOMNodeInserted", function(){
-                score = findBonusLayer().innerText;
-
-                // if score == 'XP*' skip it
-                if(score.includes("XP")) return;
-
-
-                log("hand score: "+score);
-                // triggered every time someone wins a hand
-
-                updateScores(score, lastPlayerName);
-            });
-            listeners.bonusLayer = true;
-            log('+ bonus layer listener added');
-            clearInterval(intv34f287g);
-        }
-    }, 1000);
-}
-
-// DETECT WHEN LAST PLAYER CHANGES - used to find winer of hand
-function addLastPlayerListener(){
-    if(listeners.lastPlayer) return;
-    let intvg495h84g = setInterval(function(){
-        log("interval: last player layer");
-        if(findLastPlayer()){
-            findLastPlayer().addEventListener("DOMNodeInserted", function(){
-
-                const full = findLastPlayer().innerText;
-                // return all content after the second " ":
-                const last_player = full.split(" ").slice(2).join(" ");
-                lastPlayerName = last_player;
-
-                log("last player: " + last_player);
-            });
-            listeners.lastPlayer = true;
-            log('+ last player layer listener added');
-            clearInterval(intvg495h84g);
-        }
-    }, 1000);
+    }, 500);
 }
 
 
-
-
-/* ====================== in game ====================== */
-
-openTab(0);
+// Create new tab to bypass CSP
+function openCardExchangeTab(){
+    newTab = window.open(EXCH_CARDS_PATH, '_blank', 'width=600,height=450,top=100,left=300');
+}
 
 
 /* ====================== live score ====================== */
@@ -569,16 +505,206 @@ function resetScores(){
     displayCurrentCards();
 }
 
-// listener to get hand score
-function findBonusLayer(){
-    return document.getElementById("bonusAnimationsLayer");
+
+
+
+
+
+
+
+
+
+
+const eventListeners = new WeakMap();
+
+// Function to add custom event listeners
+function addListenerCustom(interval_index, find_function, event, callback) {
+    let el;
+
+    // Create and store the interval
+    intervals_list[interval_index] = setInterval(function () {
+        log("interval " + interval_index);
+
+        // Check if the element is found
+        if ((el = find_function())) {
+            // If the listener has already been added, don't add it again
+            if (hasTrackedEventListener(el, event)) {
+                log(`${event} listener already exists for this element`);
+                clearInterval(intervals_list[interval_index]);
+                return;
+            }
+
+            // Add the event listener if element is found
+            el.addEventListener(event, callback);
+
+            // Track the listener in the WeakMap
+            if (!eventListeners.has(el)) {
+                eventListeners.set(el, {});
+            }
+
+            const listeners = eventListeners.get(el);
+            listeners[event] = callback; // Track specific event listener
+
+            log(`+ ${event} listener added`);
+            clearInterval(intervals_list[interval_index]); // Clear the interval after listener is added
+        }
+    }, 1000);
+}
+
+// Check if the element has a tracked listener
+function hasTrackedEventListener(element, event) {
+    return eventListeners.has(element) && eventListeners.get(element)[event] !== undefined;
+}
+
+function addListeners() {
+
+    const playedCardsArea = findPlayedCardsArea();
+    if (playedCardsArea) {
+        if (hasTrackedEventListener(playedCardsArea, "DOMNodeInserted")) {
+            log("played cards area has a listener");
+        } else {
+            log("played cards area does not have a listener", "w");
+            // add listener
+            addListenerCustom(1, findPlayedCardsArea, "DOMNodeInserted", findCurrentPlayedCards);
+        }
+    } else {
+        log("played cards area not found", "w");
+    }
+
+    const lastPlayer = findLastPlayer();
+    if (lastPlayer) {
+        if (hasTrackedEventListener(lastPlayer, "DOMNodeInserted")) {
+            log("last player has a listener");
+        } else {
+            log("last player does not have a listener", "w");
+            // add listener
+            addListenerCustom(2, findLastPlayer, "DOMNodeInserted", updateLastPlayer);
+        }
+    } else {
+        log("last player not found", "w");
+    }
+
+    const myTeamScore = findMyTeamScore();
+    if (myTeamScore) {
+        if (hasTrackedEventListener(myTeamScore, "DOMNodeInserted")) {
+            log("my team score has a listener");
+        } else {
+            log("my team score does not have a listener", "w");
+            // add listener
+            addListenerCustom(3, findMyTeamScore, "DOMNodeInserted", resetAll);
+        }
+    } else {
+        log("my team score not found", "w");
+    }
+
+    const opTeamScore = findOpTeamScore();
+    if (opTeamScore) {
+        if (hasTrackedEventListener(opTeamScore, "DOMNodeInserted")) {
+            log("op team score has a listener");
+        } else {
+            log("op team score does not have a listener", "w");
+            // add listener
+            addListenerCustom(4, findOpTeamScore, "DOMNodeInserted", resetAll);
+        }
+    } else {
+        log("op team score not found", "w");
+    }
+
+    const bonusLayer = findBonusLayer();
+    if (bonusLayer) {
+        if (hasTrackedEventListener(bonusLayer, "DOMNodeInserted")) {
+            log("bonus layer has a listener");
+        } else {
+            log("bonus layer does not have a listener", "w");
+            // add listener
+            addListenerCustom(5, findBonusLayer, "DOMNodeInserted", getHandPoints);
+        }
+    } else {
+        log("bonus layer not found", "w");
+    }
+
+    const paralaveteKartesButton = findParalaveteKartesButton();
+    if (paralaveteKartesButton) {
+        if (hasTrackedEventListener(paralaveteKartesButton, "click")) {
+            log("paralavete kartes button has a listener");
+        } else {
+            log("paralavete kartes button does not have a listener", "w");
+            // add listener
+            addListenerCustom(8, findParalaveteKartesButton, "click", cardsRecieved);
+        }
+    } else {
+        log("paralavete kartes button not found", "w");
+    }
+
+
+
 }
 
 
-// listener to keep track of winner of hand
-function findLastPlayer(){
-    return document.getElementById("txtLastHand");
+
+// LISTENERS ARE ADDED ONLY EVERY TIME EKKINHSH BUTTON IS CLICKED
+let ekkinhshButtonInterval = setInterval(function(){
+    log("interval: ekkinhsh button");
+    if(findEkkinhshButton()){
+        log('ekkinhsh button found');
+        findEkkinhshButton().addEventListener("click", function(){
+            log('ekkinhsh button clicked');
+            addListeners();
+        });
+        listener_ekk = true;
+        log('+ ekkinhsh button listener added');
+        clearInterval(ekkinhshButtonInterval);
+    }
+}, 1000);
+
+
+
+
+
+// DETECT WHEN TEAMMATE SENDS CARDS - does not need check, this listener does not get removed
+function addChildTabListener(){
+    window.addEventListener('message', function(event) {
+        if (event.origin === EXCH_CARDS_URL) {
+            const cards = event.data.trim().split(" ");
+            cards.forEach(card => { if (!rmFromUnkCards(card)) tmateCards.push(card); });
+            displayCurrentCards();
+        }
+    }, false);
+    log('+ child tab listener added');
 }
+
+
+function getHandPoints(){
+    score = findBonusLayer().innerText;
+    if(score.includes("XP")) return;
+    log("hand score: "+score);
+    updateScores(score, lastPlayerName);
+}
+
+
+
+// LISTENER CALLBACKS
+
+// Named callback for the last player listener to ensure proper reference tracking
+function updateLastPlayer() {
+    const full = findLastPlayer().innerText;
+    const last_player = full.split(" ").slice(2).join(" ");
+    lastPlayerName = last_player;
+    log("last player: " + last_player);
+}
+
+
+
+
+
+function stopAllIntervals(){
+    for(let i=0; i<intervals_list.length; i++){
+        clearInterval(intervals_list[i]);
+    }
+    log("all intervals stopped");
+}
+
+
 
 
 
