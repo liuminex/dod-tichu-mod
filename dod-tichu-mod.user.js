@@ -184,7 +184,8 @@ function findCloseGamesButton() {
     return document.querySelector("#topBarCloseButton");
 }
 function findTichuButton() {
-    return getElByXPath("/html/body/div/div/div[7]/div[2]/div[2]/div/div/div/div[2]/div[2]/div[5]");
+    const tichuBtn = document.querySelector(".boxbutton.defaultbox[game='tichu']");
+    return tichuBtn;
 }
 function findEkkinhshButton() {
     return document.getElementById("go_startstop");
