@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Tichu Mod
-// @version      0.7.1
+// @version      0.7.2
 // @description  Tichu Mod Script for counting game cards
 // @author       Jason-Manos
 // @match        https://www.dod.gr/*
@@ -14,7 +14,6 @@
 2. MOD BOX
 3. FIND ELEMENTS
 
-
 */
 
 
@@ -27,7 +26,7 @@ const EXCH_CARDS_PATH = 'https://manos2400.github.io/card-exchange/'; // exact l
 // RUN TIME (do not need to change)
 let newTab = undefined;
 
-let myCards = [], tmateCards = [], opp1Cards = [], opp2Cards = [], playedCards = [], unknownCards = [];
+let myCards = [], tmateCards = [], playedCards = [], unknownCards = [];
 
 const intervals_list = [
     null,
@@ -160,8 +159,8 @@ function hideAllTabs(){
 function log(str, level="default"){
 
     let color = "white";
-    if(level == "e") color = "red";
-    if(level == "w") color = "yellow";
+    if(level === "e") color = "red";
+    if(level === "w") color = "yellow";
 
     findModBoxLog().innerHTML += "<p class='logtry' style='color: "+color+"'>" + str + "</p>";
     // scroll into view
@@ -169,14 +168,8 @@ function log(str, level="default"){
 }
 
 
-
-
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 3. FIND ELEMENTS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-function findDummyElement(){
-    // real element that always exists
-    return document.getElementById("cookies_component");
-}
 function findLastLogtry(){
     let logtry = document.getElementsByClassName("logtry");
     return logtry[logtry.length - 1];
@@ -208,9 +201,6 @@ function findMyTeamScore() {
 function findOpTeamScore() {
     return document.getElementById("txtOpTeamScore");
 }
-function findGoFeed() {
-    return document.querySelector("#go_feed > span.dodlangspan");
-}
 function findMyCardsArea(){
     return document.getElementById("hand");
 }
@@ -234,22 +224,19 @@ function findLastPlayer(){ // listener to keep track of winner of hand
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 4. GENERAL FUNCTIONS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 function getElByXPath(xpath){
-    var result = document.evaluate(xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null);
+    const result = document.evaluate(xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null);
     return result.singleNodeValue;
 }
+
 function callMouseDown(el){
     el.dispatchEvent(new MouseEvent("mousedown", {bubbles: true, cancelable: true, view: window}));
 }
 
-
-
-
-
-
 function copyMyCards() {
-    navigator.clipboard.writeText(myCards.join(" "));
+    navigator.clipboard.writeText(myCards.join(" ")).catch(err => console.error('Failed to copy: ', err));
     log("My cards copied to clipboard");
 }
+
 function readTMateCards() {
     const cards = findTMateCardInput().value.trim().split(" ");
     cards.forEach(card => { if (!rmFromUnkCards(card)) tmateCards.push(card); });
@@ -257,8 +244,6 @@ function readTMateCards() {
     hideAllTabs();
     findCardsArea().style.display = "block";
 }
-
-
 
 function findMyCurrentCards() {
     const myCardsArea = findMyCardsArea();
@@ -270,10 +255,10 @@ function findMyCurrentCards() {
 
     for (let i = 0; i < myCardsArea.children.length; i++) {
         let cardEl = myCardsArea.children[i];
-        let cardname = cardEl.getAttribute("card");
+        let cardName = cardEl.getAttribute("card");
 
-        if (!rmFromUnkCards(cardname)) {
-            myCards.push(cardname);
+        if (!rmFromUnkCards(cardName)) {
+            myCards.push(cardName);
         }
     }
     if(newTab) newTab.postMessage(myCards.join(" "), EXCH_CARDS_URL);
@@ -282,26 +267,26 @@ function findMyCurrentCards() {
     displayCurrentCards();
 }
 
-function rmFromUnkCards(cardname) {
-    const index = unknownCards.indexOf(cardname);
+function rmFromUnkCards(cardName) {
+    const index = unknownCards.indexOf(cardName);
     if (index === -1) return 1;
     unknownCards.splice(index, 1);
     return 0;
 }
-function rmFromMyCards(cardname) {
-    const index = myCards.indexOf(cardname);
+
+function rmFromMyCards(cardName) {
+    const index = myCards.indexOf(cardName);
     if (index === -1) return 1;
     myCards.splice(index, 1);
     return 0;
 }
-function rmFromTmateCards(cardname) {
-    const index = tmateCards.indexOf(cardname);
+
+function rmFromTmateCards(cardName) {
+    const index = tmateCards.indexOf(cardName);
     if (index === -1) return 1;
     tmateCards.splice(index, 1);
     return 0;
 }
-
-
 
 function findCurrentPlayedCards() {
     const playedCardsArea = findPlayedCardsArea();
@@ -313,27 +298,25 @@ function findCurrentPlayedCards() {
 
     for (let i = 0; i < playedCardsArea.children.length; i++) {
         let cardEl = playedCardsArea.children[i];
-        let cardname = cardEl.getAttribute("card");
-        if(cardname[0] === "P") cardname = "P!";
-        if (!rmFromUnkCards(cardname)) {
-            playedCards.push(cardname);
+        let cardName = cardEl.getAttribute("card");
+        if(cardName[0] === "P") cardName = "P!";
+        if (!rmFromUnkCards(cardName)) {
+            playedCards.push(cardName);
         }
-        if (!rmFromMyCards(cardname)) {
-            playedCards.push(cardname);
+        if (!rmFromMyCards(cardName)) {
+            playedCards.push(cardName);
         }
-        if (!rmFromTmateCards(cardname)) {
-            playedCards.push(cardname);
+        if (!rmFromTmateCards(cardName)) {
+            playedCards.push(cardName);
         }
     }
 
     displayCurrentCards();
 }
 
-
-
 function resetAll() {
     log("resetting all...");
-    myCards = []; tmateCards = []; opp1Cards = []; opp2Cards = []; playedCards = [];
+    myCards = []; tmateCards = []; playedCards = [];
     unknownCards = [
         "Dragon", "Ad", "Ac", "Ah", "As", "Kd", "Kc", "Kh", "Ks", "Qd", "Qc", "Qh", "Qs", "Jd", "Jc", "Jh", "Js",
         "Td", "Tc", "Th", "Ts", "9d", "9c", "9h", "9s", "8d", "8c", "8h", "8s", "7d", "7c", "7h", "7s", "6d", "6c", "6h", "6s",
@@ -342,8 +325,6 @@ function resetAll() {
     displayCurrentCards();
     resetScores();
 }
-
-
 
 function styleCards(cards, grid = false) {
     const order = ["Dragon", "Phoenix", "Dogs", "Mahjong", "A", "K", "Q", "J", "10", "9", "8", "7", "6", "5", "4", "3", "2"];
@@ -411,7 +392,7 @@ function displayCurrentCards() {
             <p><span>Played (${playedCards.length}): </span><span>${styleCards(playedCards, false)}</span></p>
             <p><span>Unknown (${unknownCards.length}): </span><span>${styleCards(unknownCards, true)}</span></p>
         `;
-    if (playedCards.length + myCards.length + tmateCards.length + opp1Cards.length + opp2Cards.length + unknownCards.length !== 56) {
+    if (playedCards.length + myCards.length + tmateCards.length + unknownCards.length !== 56) {
         log("cards count is not 56", "w");
     }
 }
@@ -430,7 +411,7 @@ function openTichu(){
     log('opened games');
 
     // wait until tichu button exists, then open tichu and close games
-    var interval_tichu_btn = setInterval(function(){
+    let interval_tichu_btn = setInterval(function(){
         log("interval: tichu button");
         if(findTichuButton()){
             callMouseDown(findTichuButton());
@@ -450,8 +431,6 @@ function openTichu(){
         }
     }, 1000);
 }
-
-
 
 
 /* ====================== LISTENERS ====================== */
@@ -506,15 +485,6 @@ function resetScores(){
 }
 
 
-
-
-
-
-
-
-
-
-
 const eventListeners = new WeakMap();
 
 // Function to add custom event listeners
@@ -557,7 +527,6 @@ function hasTrackedEventListener(element, event) {
 }
 
 function addListeners() {
-
     const playedCardsArea = findPlayedCardsArea();
     if (playedCardsArea) {
         if (hasTrackedEventListener(playedCardsArea, "DOMNodeInserted")) {
@@ -635,11 +604,7 @@ function addListeners() {
     } else {
         log("paralavete kartes button not found", "w");
     }
-
-
-
 }
-
 
 
 // LISTENERS ARE ADDED ONLY EVERY TIME EKKINHSH BUTTON IS CLICKED
@@ -651,14 +616,10 @@ let ekkinhshButtonInterval = setInterval(function(){
             log('ekkinhsh button clicked');
             addListeners();
         });
-        listener_ekk = true;
         log('+ ekkinhsh button listener added');
         clearInterval(ekkinhshButtonInterval);
     }
 }, 1000);
-
-
-
 
 
 // DETECT WHEN TEAMMATE SENDS CARDS - does not need check, this listener does not get removed
@@ -681,8 +642,6 @@ function getHandPoints(){
     updateScores(score, lastPlayerName);
 }
 
-
-
 // LISTENER CALLBACKS
 
 // Named callback for the last player listener to ensure proper reference tracking
@@ -693,18 +652,9 @@ function updateLastPlayer() {
     log("last player: " + last_player);
 }
 
-
-
-
-
 function stopAllIntervals(){
     for(let i=0; i<intervals_list.length; i++){
         clearInterval(intervals_list[i]);
     }
     log("all intervals stopped");
 }
-
-
-
-
-
